@@ -7,12 +7,12 @@ import { Stack } from "expo-router";
 const RootLayout = () => {
 
   return (
-    <Stack>
-      <Stack.Screen name="Home" options={{title: "Home"}} />
-      {/* <Stack.Screen name="Home" options={{title: "Home"}} />
-      <Stack.Screen name="Home" options={{title: "Home"}} />
-      <Stack.Screen name="Home" options={{title: "Home"}} />
-      <Stack.Screen name="Home" options={{title: "Home"}} /> */}
+    <Stack initialRouteName="signin" screenOptions={{ headerShown: true }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="signin" options={{ title: "Sign In", headerShown: true }} />
+      <Stack.Screen name="signout" options={{ title: "Sign Out", headerShown: true }} />
+      <Stack.Screen name="dashboard" options={{ title: "Dashboard", headerShown: true }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
     </Stack>
   );
 
