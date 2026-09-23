@@ -64,16 +64,6 @@ export default function Dashboard() {
       {/* Main Action Buttons */}
       <View className="gap-3 my-6">
         <Pressable
-          onPress={handleGoToTabs}
-          className="w-full flex-row items-center justify-center bg-blue-600 active:bg-blue-700 py-4 px-6 rounded-xl shadow-sm"
-        >
-          <Text className="text-white text-base font-semibold mr-2">
-            Enter App (Tabs)
-          </Text>
-          <Ionicons name="arrow-forward" size={18} color="#ffffff" />
-        </Pressable>
-
-        <Pressable
           onPress={() => router.push("/(tabs)/plan")}
           className="w-full flex-row items-center justify-center bg-white border border-slate-300 active:bg-slate-100 py-4 px-6 rounded-xl"
         >
