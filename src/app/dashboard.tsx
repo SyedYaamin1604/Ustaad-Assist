@@ -1,7 +1,6 @@
-import React from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { Pressable, ScrollView, Text, View } from "react-native";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -25,10 +24,10 @@ export default function Dashboard() {
       <View className="mt-8">
         <View className="flex-row items-center justify-between mb-4">
           <View>
-            <Text className="text-sm font-semibold tracking-wider text-blue-600 uppercase">
+            <Text className="text-sm font-outfit-semibold tracking-wider text-blue-600 uppercase">
               Overview
             </Text>
-            <Text className="text-3xl font-extrabold text-slate-900 mt-1">
+            <Text className="text-3xl font-outfit-bold text-slate-900 mt-1">
               Dashboard
             </Text>
           </View>
@@ -49,13 +48,13 @@ export default function Dashboard() {
         <View className="flex-row gap-4 mt-6">
           <View className="flex-1 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
             <Ionicons name="layers-outline" size={24} color="#2563eb" />
-            <Text className="text-2xl font-bold text-slate-900 mt-2">12</Text>
+            <Text className="text-2xl font-outfit-bold text-slate-900 mt-2">12</Text>
             <Text className="text-xs text-slate-500 mt-0.5">Active Modules</Text>
           </View>
 
           <View className="flex-1 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
             <Ionicons name="checkmark-done-circle-outline" size={24} color="#16a34a" />
-            <Text className="text-2xl font-bold text-slate-900 mt-2">98%</Text>
+            <Text className="text-2xl font-outfit-bold text-slate-900 mt-2">98%</Text>
             <Text className="text-xs text-slate-500 mt-0.5">Completion Rate</Text>
           </View>
         </View>
@@ -67,7 +66,7 @@ export default function Dashboard() {
           onPress={() => router.push("/(tabs)/plan")}
           className="w-full flex-row items-center justify-center bg-white border border-slate-300 active:bg-slate-100 py-4 px-6 rounded-xl"
         >
-          <Text className="text-slate-700 text-base font-medium mr-2">
+          <Text className="text-slate-700 text-base font-outfit-medium mr-2">
             Jump to Explore Tab
           </Text>
           <Ionicons name="compass-outline" size={18} color="#334155" />
@@ -77,7 +76,7 @@ export default function Dashboard() {
           onPress={handleSignOut}
           className="w-full items-center justify-center py-3"
         >
-          <Text className="text-rose-600 font-semibold text-sm">
+          <Text className="text-rose-600 font-outfit-semibold text-sm">
             Sign Out
           </Text>
         </Pressable>

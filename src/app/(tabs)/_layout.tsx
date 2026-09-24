@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { View, TouchableOpacity, Text } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+// Screens Imports
 import Dashboard from "./dashboard";
 import Plan from "./plan";
 import Students from "./students";
@@ -11,7 +13,7 @@ import Material from "./material";
 type TabItem = {
     key: string;
     label: string;
-    icon: keyof typeof Feather.glyphMap; // restricts to valid Feather icon names
+    icon: keyof typeof Feather.glyphMap;
     screen: React.ComponentType;
 };
 
@@ -29,17 +31,15 @@ export default function TabsLayout() {
     const ActiveScreen = TABS.find((tab) => tab.key === activeTab)!.screen;
 
     return (
-        <View className="flex-1">
-            {/* Active screen content */}
+        <SafeAreaView className="flex-1" edges={["top"]}>
             <View className="flex-1">
                 <ActiveScreen />
             </View>
 
-            {/* Bottom tab bar */}
             <View className="absolute bottom-12 left-0 right-0 items-center mx-10">
                 <View
                     className="flex-row justify-center items-center bg-white rounded-full py-2 px-2 w-full shadow-lg"
-                    style={{ elevation: 6 }} // NativeWind shadow needs elevation on Android
+                    style={{ elevation: 6 }}
                 >
                     {TABS.map((tab) => {
                         const isActive = activeTab === tab.key;
@@ -57,7 +57,7 @@ export default function TabsLayout() {
                                     color={isActive ? "#FFFFFF" : "#9CA3AF"}
                                 />
                                 {isActive && (
-                                    <Text className="text-white text-[13px] font-semibold ml-1.5">
+                                    <Text className="text-white text-[13px] font-outfit-semibold ml-1.5">
                                         {tab.label}
                                     </Text>
                                 )}
@@ -66,6 +66,6 @@ export default function TabsLayout() {
                     })}
                 </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
