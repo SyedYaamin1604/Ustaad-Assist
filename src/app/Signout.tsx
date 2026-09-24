@@ -14,15 +14,15 @@ const Signout = () => {
             className="flex-1 bg-white"
             contentContainerClassName="flex-grow items-center justify-center py-10 min-h-[100vh]"
         >
-            <Text className="text-2xl font-bold text-black mb-6">
+            <Text className="text-2xl font-outfit-bold text-black mb-6">
                 Signout Screen is working!
             </Text>
 
             <Pressable
                 onPress={handleDashboard}
-                className="bg-blue-600 px-6 py-3 rounded-lg"
+                className="bg-black px-6 py-3 rounded-lg"
             >
-                <Text className="text-white font-semibold">Go to Dashboard</Text>
+                <Text className="text-white font-outfit-semibold">Go to Dashboard</Text>
             </Pressable>
         </ScrollView>
     );
