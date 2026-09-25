@@ -1,86 +1,61 @@
-import { Ionicons } from "@expo/vector-icons";
+// Dashboard.tsx
 import { useRouter } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { useState } from "react";
+import { ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Dashboard() {
+import CourseGrid from "../components/dashboard/CourseGrid";
+import CourseTabs from "../components/dashboard/CourseTabs";
+import DashboardHeader from "../components/dashboard/DashboardHeader";
+import NewCourseButton from "../components/dashboard/NewCourseButton";
+import { ACTIVE_COURSES, PAST_COURSES } from "../components/dashboard/dummyCourse";
+import type { Course } from "../components/dashboard/CourseCard";
+
+const Dashboard = () => {
   const router = useRouter();
+  const [tab, setTab] = useState<"active" | "past">("active");
 
-  const handleGoToTabs = () => {
-    // Navigate into the tab navigation (defaults to index / Home tab)
-    router.replace("/(tabs)/plan");
+  const courses: Course[] = tab === "active" ? ACTIVE_COURSES : PAST_COURSES;
+
+  const handleSelectCourse = (course: Course) => {
+    router.push({ pathname: "/course/[id]", params: { id: course.id } });
   };
 
-  const handleSignOut = () => {
-    // Navigate to Sign Out screen
-    router.push("/signout");
+  const handleNewCourse = () => {
+    router.push("/course/new");
   };
+
+  const DEFAULT_AVATAR_URL = "https://ui-avatars.com/api/?name=Dr+Ahmed&background=e2e8f0&color=475569";
 
   return (
-    <ScrollView
-      className="flex-1 bg-slate-50"
-      contentContainerClassName="p-6 justify-between flex-grow"
-    >
-      {/* Top Header Section */}
-      <View className="mt-8">
-        <View className="flex-row items-center justify-between mb-4">
-          <View>
-            <Text className="text-sm font-outfit-semibold tracking-wider text-blue-600 uppercase">
-              Overview
-            </Text>
-            <Text className="text-3xl font-outfit-bold text-slate-900 mt-1">
-              Dashboard
-            </Text>
-          </View>
+    <SafeAreaView className="flex-1 bg-[#f6f7fb]" edges={["top"]}>
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="px-6 pt-4 pb-10"
+        showsVerticalScrollIndicator={false}
+      >
+        <DashboardHeader
+          name="Dr. Ahmed"
+          term="Fall 2026 · Week 4"
+          avatarUri={DEFAULT_AVATAR_URL}
+          onOpenSettings={() => router.push("/settings")}
+          onOpenProfile={() => router.push("/profile")}
+        />
 
-          <Pressable
-            onPress={handleSignOut}
-            className="p-2.5 rounded-full bg-slate-200 active:bg-slate-300"
-          >
-            <Ionicons name="log-out-outline" size={20} color="#475569" />
-          </Pressable>
+        <CourseTabs value={tab} onChange={setTab} />
+
+        <CourseGrid
+          courses={courses}
+          emptyLabel={`No ${tab} courses yet.`}
+          onSelectCourse={handleSelectCourse}
+        />
+
+        <View className="mt-7">
+          <NewCourseButton onPress={handleNewCourse} />
         </View>
-
-        <Text className="text-slate-500 text-base">
-          Welcome back! Select an option below to proceed into the application.
-        </Text>
-
-        {/* Quick Stats / Info Cards */}
-        <View className="flex-row gap-4 mt-6">
-          <View className="flex-1 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
-            <Ionicons name="layers-outline" size={24} color="#2563eb" />
-            <Text className="text-2xl font-outfit-bold text-slate-900 mt-2">12</Text>
-            <Text className="text-xs text-slate-500 mt-0.5">Active Modules</Text>
-          </View>
-
-          <View className="flex-1 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
-            <Ionicons name="checkmark-done-circle-outline" size={24} color="#16a34a" />
-            <Text className="text-2xl font-outfit-bold text-slate-900 mt-2">98%</Text>
-            <Text className="text-xs text-slate-500 mt-0.5">Completion Rate</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Main Action Buttons */}
-      <View className="gap-3 my-6">
-        <Pressable
-          onPress={() => router.push("/(tabs)/plan")}
-          className="w-full flex-row items-center justify-center bg-white border border-slate-300 active:bg-slate-100 py-4 px-6 rounded-xl"
-        >
-          <Text className="text-slate-700 text-base font-outfit-medium mr-2">
-            Jump to Explore Tab
-          </Text>
-          <Ionicons name="compass-outline" size={18} color="#334155" />
-        </Pressable>
-
-        <Pressable
-          onPress={handleSignOut}
-          className="w-full items-center justify-center py-3"
-        >
-          <Text className="text-rose-600 font-outfit-semibold text-sm">
-            Sign Out
-          </Text>
-        </Pressable>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
-}
+};
+
+export default Dashboard;
