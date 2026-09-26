@@ -1,6 +1,5 @@
-import React from "react";
-import { Text, ScrollView, Pressable } from "react-native";
 import { useRouter } from "expo-router";
+import { Pressable, ScrollView, Text } from "react-native";
 
 const Signout = () => {
     const router = useRouter();

@@ -33,10 +33,10 @@ const [fontsLoaded] = useFonts({
 
   return (
     <SafeAreaProvider>
-      <Stack initialRouteName="signin" screenOptions={{ headerShown: true }}>
+      <Stack initialRouteName="Signin" screenOptions={{ headerShown: true }}>
         <Stack.Screen name="index" />
-        <Stack.Screen name="signin" options={{ title: "Sign In", headerShown: true }} />
-        <Stack.Screen name="signout" options={{ title: "Sign Out", headerShown: true }} />
+        <Stack.Screen name="Signin" options={{ title: "Sign In", headerShown: true }} />
+        <Stack.Screen name="Signout" options={{ title: "Sign Out", headerShown: true }} />
         <Stack.Screen name="dashboard" options={{ title: "Dashboard", headerShown: true }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
