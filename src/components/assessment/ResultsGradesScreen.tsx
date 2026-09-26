@@ -101,7 +101,7 @@ export function ResultsGradesScreen({ onBack, onExport }: ResultsGradesScreenPro
           <View className="flex-row items-center bg-amber-50 border border-amber-200 rounded-2xl px-3.5 py-3 mb-4">
             <Feather name="alert-triangle" size={16} color="#B45309" />
             <Text className="flex-1 font-outfit-medium text-[13px] text-amber-700 ml-2">
-              {missingCount} of {MOCK_GRADE_ROWS.length} students still need marks entered. This sheet won't be
+              {missingCount} of {MOCK_GRADE_ROWS.length} students still need marks entered. This sheet won&apos;t be
               final until every student is in.
             </Text>
           </View>

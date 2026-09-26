@@ -4,12 +4,6 @@ import { useEffect } from "react";
 import { Platform } from "react-native";
 import * as NavigationBar from "expo-navigation-bar";
 import { useFonts } from "expo-font";
-// import {
-//   Outfit_400Regular,
-//   Outfit_500Medium,
-//   Outfit_600SemiBold,
-//   Outfit_700Bold,
-// } from '@expo-google-fonts/outfit';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const RootLayout = () => {
@@ -33,11 +27,15 @@ const [fontsLoaded] = useFonts({
 
   return (
     <SafeAreaProvider>
-      <Stack initialRouteName="Signin" screenOptions={{ headerShown: true }}>
+      <Stack initialRouteName="signin" screenOptions={{ headerShown: true }}>
         <Stack.Screen name="index" />
-        <Stack.Screen name="Signin" options={{ title: "Sign In", headerShown: true }} />
-        <Stack.Screen name="Signout" options={{ title: "Sign Out", headerShown: true }} />
-        <Stack.Screen name="dashboard" options={{ title: "Dashboard", headerShown: true }} />
+        <Stack.Screen name="signin" options={{ title: "Sign In", headerShown: false }} />
+        <Stack.Screen name="register" options={{ title: "Register", headerShown: false }} />
+        <Stack.Screen name="forgot-password" options={{ title: "Forgot Password", headerShown: false }} />
+        <Stack.Screen name="profile" options={{ title: "Profile", headerShown: true }} />
+        <Stack.Screen name="settings" options={{ title: "Settings", headerShown: true }} />
+        <Stack.Screen name="course/[id]" options={{ title: "Course", headerShown: true }} />
+        <Stack.Screen name="course/new" options={{ title: "New Course", headerShown: true }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </SafeAreaProvider>

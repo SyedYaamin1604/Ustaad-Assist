@@ -7,7 +7,7 @@ import { SegmentedPills } from "@/components/ui/SegmentedPills";
 import { AssessmentDraft, AssessmentItem, AssessmentTypeOption } from "@/types/assessment";
 import { formatDateTime } from "@/utils/date";
 import { Feather } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
 interface CreateAssessmentModalProps {
@@ -35,9 +35,14 @@ export function CreateAssessmentModal({ visible, onClose, onSubmit, editingItem 
   const [isAddingTopic, setAddingTopic] = useState(false);
   const [newTopicText, setNewTopicText] = useState("");
 
-  // Reset / prefill whenever the sheet opens
-  useEffect(() => {
-    if (!visible) return;
+  // Reset / prefill whenever the sheet opens (adjusting state during render, not in an effect)
+  const [prevOpenKey, setPrevOpenKey] = useState<{ visible: boolean; editingItem: typeof editingItem } | null>(null);
+  if (!prevOpenKey || prevOpenKey.visible !== visible || prevOpenKey.editingItem !== editingItem) {
+    setPrevOpenKey({ visible, editingItem });
+    if (visible) resetForm();
+  }
+
+  function resetForm() {
     if (editingItem) {
       setType(editingItem.type);
       setTitle(editingItem.title);
@@ -56,7 +61,7 @@ export function CreateAssessmentModal({ visible, onClose, onSubmit, editingItem 
     setSuggestionDismissed(false);
     setAddingTopic(false);
     setNewTopicText("");
-  }, [visible, editingItem]);
+  }
 
   const toggleTopic = (topic: string) => {
     setSelectedTopics((prev) =>
