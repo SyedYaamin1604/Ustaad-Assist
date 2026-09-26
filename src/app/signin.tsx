@@ -9,7 +9,6 @@ import FormInput from "../components/auth/FormInput";
 import PasswordInput from "../components/auth/PasswordInput";
 import PrimaryButton from "../components/auth/PrimaryButton";
 import GoogleButton from "../components/auth/GoogleButton";
-import InlineLink from "../components/auth/InlineLink";
 import ForgotPassword from "../components/auth/ForgotPassword";
 
 const Signin = () => {

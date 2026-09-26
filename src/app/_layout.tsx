@@ -32,7 +32,6 @@ const [fontsLoaded] = useFonts({
         <Stack.Screen name="signin" options={{ title: "Sign In", headerShown: false }} />
         <Stack.Screen name="register" options={{ title: "Register", headerShown: false }} />
         <Stack.Screen name="forgot-password" options={{ title: "Forgot Password", headerShown: false }} />
-        <Stack.Screen name="dashboard" options={{ title: "Dashboard", headerShown: false }} />
         <Stack.Screen name="profile" options={{ title: "Profile", headerShown: true }} />
         <Stack.Screen name="settings" options={{ title: "Settings", headerShown: true }} />
         <Stack.Screen name="course/[id]" options={{ title: "Course", headerShown: true }} />
