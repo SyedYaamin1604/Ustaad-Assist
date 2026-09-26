@@ -1,11 +1,19 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/app/**/*.{js,jsx,ts,tsx}",
+    "./src/components/**/*.{js,jsx,ts,tsx}",
   ],
   presets: [require("nativewind/preset")],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        outfit: ["Outfit-Regular"],
+        "outfit-medium": ["Outfit-Medium"],
+        "outfit-semibold": ["Outfit-SemiBold"],
+        "outfit-bold": ["Outfit-Bold"],
+      },
+    },
   },
   plugins: [],
 };
