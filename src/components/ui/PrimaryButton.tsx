@@ -14,10 +14,10 @@ export function PrimaryButton({ label, onPress, icon = "arrow-right", disabled =
       onPress={disabled ? undefined : onPress}
       disabled={disabled}
       className={`w-full flex-row items-center justify-center rounded-full py-4 ${
-        disabled ? "bg-slate-200" : "bg-black active:opacity-80"
+        disabled ? "bg-[var(--primary-font)]/10" : "bg-[var(--color-secondary)] active:opacity-80"
       }`}
     >
-      <Text className={`font-outfit-semibold text-[15px] mr-2 ${disabled ? "text-slate-400" : "text-white"}`}>
+      <Text className={`font-outfit-semibold text-[15px] mr-2 ${disabled ? "text-[var(--primary-font)]/40" : "text-[var(--secondary-font)]"}`}>
         {label}
       </Text>
       <Feather name={icon} size={16} color={disabled ? "#94A3B8" : "#fff"} />

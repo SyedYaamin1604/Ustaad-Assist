@@ -10,11 +10,11 @@ interface StatusBadgeProps {
 
 const TONE_CLASSES: Record<BadgeTone, { bg: string; text: string; dot: string }> = {
   success: { bg: "bg-emerald-100", text: "text-emerald-700", dot: "bg-emerald-500" },
-  neutral: { bg: "bg-slate-100", text: "text-slate-500", dot: "bg-slate-400" },
+  neutral: { bg: "bg-[var(--primary-font)]/5", text: "text-[var(--primary-font)]/55", dot: "bg-[var(--primary-font)]/40" },
   warning: { bg: "bg-amber-100", text: "text-amber-700", dot: "bg-amber-500" },
   danger: { bg: "bg-rose-100", text: "text-rose-600", dot: "bg-rose-500" },
-  dark: { bg: "bg-black", text: "text-white", dot: "bg-white" },
-  light: { bg: "bg-white", text: "text-slate-700", dot: "bg-slate-400" },
+  dark: { bg: "bg-[var(--color-secondary)]", text: "text-[var(--secondary-font)]", dot: "bg-[var(--color-primary)]" },
+  light: { bg: "bg-[var(--color-primary)]", text: "text-[var(--primary-font)]/75", dot: "bg-[var(--primary-font)]/40" },
 };
 
 export function StatusBadge({ label, tone = "neutral", dot = false }: StatusBadgeProps) {

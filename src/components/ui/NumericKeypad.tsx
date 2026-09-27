@@ -14,12 +14,12 @@ export function NumericKeypad({ onKeyPress }: NumericKeypadProps) {
         <Pressable
           key={key}
           onPress={() => onKeyPress(key)}
-          className="w-[31%] mb-3 bg-slate-100 rounded-2xl py-4 items-center justify-center active:bg-slate-200"
+          className="w-[31%] mb-3 bg-[var(--primary-font)]/5 rounded-2xl py-4 items-center justify-center active:bg-[var(--primary-font)]/10"
         >
           {key === "backspace" ? (
             <Feather name="delete" size={20} color="#0F172A" />
           ) : (
-            <Text className="font-outfit-semibold text-xl text-black">{key}</Text>
+            <Text className="font-outfit-semibold text-xl text-[var(--primary-font)]">{key}</Text>
           )}
         </Pressable>
       ))}

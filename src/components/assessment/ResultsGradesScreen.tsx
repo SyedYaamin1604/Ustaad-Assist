@@ -1,14 +1,15 @@
-import { useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, Share, Text, View } from "react-native";
-import { Feather, Ionicons } from "@expo/vector-icons";
-import { SearchInput } from "@/components/ui/SearchInput";
-import { SegmentedPills } from "@/components/ui/SegmentedPills";
-import { PrimaryButton } from "@/components/ui/PrimaryButton";
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import { GradingCriteriaCard } from "@/components/assessment/GradingCriteriaCard";
 import { StudentGradeRow } from "@/components/assessment/StudentGradeRow";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { SearchInput } from "@/components/ui/SearchInput";
+import { SegmentedPills } from "@/components/ui/SegmentedPills";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import { GradeRow, MOCK_GRADE_ROWS, MOCK_WEIGHTAGE } from "@/types/assessment";
 import { useTabBarInset } from "@/utils/tab-bar";
+import { Feather, Ionicons } from "@expo/vector-icons";
+import { ArrowLeft } from "lucide-react-native";
+import { useMemo, useState } from "react";
+import { Alert, Pressable, ScrollView, Share, Text, TouchableOpacity, View } from "react-native";
 
 interface ResultsGradesScreenProps {
   onBack: () => void;
@@ -84,24 +85,27 @@ export function ResultsGradesScreen({ onBack, onExport }: ResultsGradesScreenPro
         showsVerticalScrollIndicator={false}
       >
         <View className="flex-row items-center justify-between mb-4">
-          <Pressable onPress={onBack} className="w-9 h-9 rounded-full bg-white items-center justify-center">
-            <Feather name="chevron-left" size={18} color="#0F172A" />
-          </Pressable>
+          <TouchableOpacity
+            onPress={onBack}
+            className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
+          >
+            <ArrowLeft size={18} color="#111827" />
+          </TouchableOpacity>
           <View className="flex-row gap-2">
-            <Pressable onPress={handleShare} className="w-9 h-9 rounded-full bg-white items-center justify-center">
+            <Pressable onPress={handleShare} className="w-9 h-9 rounded-full bg-[var(--color-primary)] items-center justify-center">
               <Feather name="share" size={16} color="#0F172A" />
             </Pressable>
-            <Pressable onPress={handleMore} className="w-9 h-9 rounded-full bg-white items-center justify-center">
+            <Pressable onPress={handleMore} className="w-9 h-9 rounded-full bg-[var(--color-primary)] items-center justify-center">
               <Feather name="more-horizontal" size={18} color="#0F172A" />
             </Pressable>
           </View>
         </View>
 
         <View className="flex-row items-center gap-2 mb-1">
-          <Text className="font-outfit-bold text-[26px] text-black">Results & Grades</Text>
+          <Text className="font-outfit-bold text-[26px] text-[var(--primary-font)]">Results & Grades</Text>
           {isIncomplete && <StatusBadge label="Incomplete" tone="warning" dot />}
         </View>
-        <Text className="font-outfit text-sm text-slate-500 mb-4">Database Systems CS-301 · Mid-term Standing</Text>
+        <Text className="font-outfit text-sm text-[var(--primary-font)]/55 mb-4">Database Systems CS-301 · Mid-term Standing</Text>
 
         {isIncomplete && (
           <View className="flex-row items-center bg-amber-50 border border-amber-200 rounded-2xl px-3.5 py-3 mb-4">
@@ -124,29 +128,29 @@ export function ResultsGradesScreen({ onBack, onExport }: ResultsGradesScreenPro
         </View>
 
         <View className="flex-row gap-3 mb-5">
-          <View className="flex-1 bg-white rounded-2xl border border-slate-100 p-3.5">
+          <View className="flex-1 bg-[var(--color-primary)] rounded-2xl border border-[var(--primary-font)]/10 p-3.5">
             <View className="flex-row items-center mb-1">
               <Ionicons name="stats-chart-outline" size={14} color="#64748B" />
-              <Text className="font-outfit-medium text-xs text-slate-500 ml-1.5">Class Average</Text>
+              <Text className="font-outfit-medium text-xs text-[var(--primary-font)]/55 ml-1.5">Class Average</Text>
             </View>
-            <Text className="font-outfit-bold text-lg text-black">76.4% (B)</Text>
+            <Text className="font-outfit-bold text-lg text-[var(--primary-font)]">76.4% (B)</Text>
           </View>
-          <View className="flex-1 bg-white rounded-2xl border border-slate-100 p-3.5">
+          <View className="flex-1 bg-[var(--color-primary)] rounded-2xl border border-[var(--primary-font)]/10 p-3.5">
             <View className="flex-row items-center mb-1">
               <Ionicons name="trophy-outline" size={14} color="#64748B" />
-              <Text className="font-outfit-medium text-xs text-slate-500 ml-1.5">Highest</Text>
+              <Text className="font-outfit-medium text-xs text-[var(--primary-font)]/55 ml-1.5">Highest</Text>
             </View>
-            <Text className="font-outfit-bold text-lg text-black">94.0% (A)</Text>
+            <Text className="font-outfit-bold text-lg text-[var(--primary-font)]">94.0% (A)</Text>
           </View>
         </View>
 
-        <Text className="font-outfit-semibold text-[15px] text-black mb-3">
+        <Text className="font-outfit-semibold text-[15px] text-[var(--primary-font)] mb-3">
           Enrolled Students ({rows.length})
         </Text>
 
         {rows.length === 0 ? (
           <View className="items-center py-10">
-            <Text className="font-outfit-medium text-slate-400">No students match your search</Text>
+            <Text className="font-outfit-medium text-[var(--primary-font)]/40">No students match your search</Text>
           </View>
         ) : (
           rows.map((row) => <StudentGradeRow key={row.id} row={row} />)

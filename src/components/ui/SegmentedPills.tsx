@@ -16,11 +16,11 @@ export function SegmentedPills({ options, value, onChange }: SegmentedPillsProps
             key={option}
             onPress={() => onChange(option)}
             className={`px-4 py-2.5 rounded-full border ${
-              isActive ? "bg-black border-black" : "bg-white border-slate-200"
+              isActive ? "bg-[var(--color-secondary)] border-[var(--color-secondary)]" : "bg-[var(--color-primary)] border-[var(--primary-font)]/15"
             }`}
           >
             <Text
-              className={`font-outfit-medium text-[13px] ${isActive ? "text-white" : "text-slate-600"}`}
+              className={`font-outfit-medium text-[13px] ${isActive ? "text-[var(--secondary-font)]" : "text-[var(--primary-font)]/65"}`}
             >
               {option}
             </Text>
