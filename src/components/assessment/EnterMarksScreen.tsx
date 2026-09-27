@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { Feather } from "@expo/vector-icons";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
-import { PrimaryButton } from "@/components/ui/PrimaryButton";
-import { NumericKeypad } from "@/components/ui/NumericKeypad";
 import { MarkStatus, StudentMarkCard } from "@/components/assessment/StudentMarkCard";
+import { NumericKeypad } from "@/components/ui/NumericKeypad";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { MOCK_STUDENTS } from "@/types/assessment";
 import { useTabBarInset } from "@/utils/tab-bar";
+import { Feather } from "@expo/vector-icons";
+import { ArrowLeft } from "lucide-react-native";
+import { useState } from "react";
+import { Alert, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 interface EnterMarksScreenProps {
   onBack: () => void;
@@ -105,27 +106,30 @@ export function EnterMarksScreen({ onBack, onDone }: EnterMarksScreenProps) {
         showsVerticalScrollIndicator={false}
       >
         <View className="flex-row items-center justify-between mb-1">
-          <Pressable onPress={onBack} className="w-9 h-9 rounded-full bg-white items-center justify-center">
-            <Feather name="chevron-left" size={18} color="#0F172A" />
-          </Pressable>
+          <TouchableOpacity
+            onPress={onBack}
+            className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
+          >
+            <ArrowLeft size={18} color="#111827" />
+          </TouchableOpacity>
           <View className="items-center">
-            <Text className="font-outfit-bold text-lg text-black">Enter Marks</Text>
-            <Text className="font-outfit text-xs text-slate-400">Quiz 2: SQL Joins · Max {MAX_MARKS} Marks</Text>
+            <Text className="font-outfit-bold text-lg text-[var(--primary-font)]">Enter Marks</Text>
+            <Text className="font-outfit text-xs text-[var(--primary-font)]/40">Quiz 2: SQL Joins · Max {MAX_MARKS} Marks</Text>
           </View>
-          <Pressable onPress={handleFinish} className="w-9 h-9 rounded-full bg-white items-center justify-center">
+          <Pressable onPress={handleFinish} className="w-9 h-9 rounded-full bg-[var(--color-primary)] items-center justify-center">
             <Feather name="check" size={18} color="#0F172A" />
           </Pressable>
         </View>
 
         <View className="mt-5 mb-5">
           <View className="flex-row items-center justify-between mb-2">
-            <Text className="font-outfit-semibold text-[15px] text-black">
-              Student {currentNumber} <Text className="font-outfit text-slate-400">of {TOTAL_STUDENTS}</Text>
+            <Text className="font-outfit-semibold text-[15px] text-[var(--primary-font)]">
+              Student {currentNumber} <Text className="font-outfit text-[var(--primary-font)]/40">of {TOTAL_STUDENTS}</Text>
             </Text>
-            <Text className="font-outfit text-[13px] text-slate-400">{remaining} remaining</Text>
+            <Text className="font-outfit text-[13px] text-[var(--primary-font)]/40">{remaining} remaining</Text>
           </View>
-          <View className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <View className="h-full bg-black rounded-full" style={{ width: `${progress * 100}%` }} />
+          <View className="h-1.5 bg-[var(--primary-font)]/10 rounded-full overflow-hidden">
+            <View className="h-full bg-[var(--color-secondary)] rounded-full" style={{ width: `${progress * 100}%` }} />
           </View>
         </View>
 
@@ -142,20 +146,20 @@ export function EnterMarksScreen({ onBack, onDone }: EnterMarksScreenProps) {
           <Pressable
             onPress={markAbsent}
             className={`flex-1 items-center py-3.5 rounded-full border ${
-              entry.status === "absent" ? "bg-rose-50 border-rose-300" : "bg-white border-slate-200"
+              entry.status === "absent" ? "bg-rose-50 border-rose-300" : "bg-[var(--color-primary)] border-[var(--primary-font)]/15"
             }`}
           >
-            <Text className={`font-outfit-medium text-[15px] ${entry.status === "absent" ? "text-rose-600" : "text-black"}`}>
+            <Text className={`font-outfit-medium text-[15px] ${entry.status === "absent" ? "text-rose-600" : "text-[var(--primary-font)]"}`}>
               Absent
             </Text>
           </Pressable>
           <Pressable
             onPress={markSkipped}
             className={`flex-1 items-center py-3.5 rounded-full border ${
-              entry.status === "skipped" ? "bg-slate-100 border-slate-300" : "bg-white border-slate-200"
+              entry.status === "skipped" ? "bg-[var(--primary-font)]/5 border-[var(--primary-font)]/20" : "bg-[var(--color-primary)] border-[var(--primary-font)]/15"
             }`}
           >
-            <Text className="font-outfit-medium text-[15px] text-black">Skip</Text>
+            <Text className="font-outfit-medium text-[15px] text-[var(--primary-font)]">Skip</Text>
           </Pressable>
         </View>
 

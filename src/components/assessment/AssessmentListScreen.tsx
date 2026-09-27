@@ -48,27 +48,21 @@ export function AssessmentListScreen({
         showsVerticalScrollIndicator={false}
       >
         <View className="flex-row items-center justify-between mb-4">
-          <Pressable
-            onPress={() => Alert.alert("Assessments", "This is the top of the Assessments tab — there's nowhere to go back to yet.")}
-            className="w-9 h-9 rounded-full bg-white items-center justify-center"
-          >
-            <Feather name="chevron-left" size={18} color="#0F172A" />
-          </Pressable>
-          <View className="bg-white rounded-full px-4 py-1.5">
-            <Text className="font-outfit-medium text-xs text-slate-600">Fall 2024</Text>
+          <View className="bg-[var(--color-primary)] rounded-full px-4 py-1.5">
+            <Text className="font-outfit-medium text-xs text-[var(--primary-font)]/65">Fall 2024</Text>
           </View>
           <Pressable
             onPress={() =>
               Alert.alert("Course menu", "Course settings, switch course and archive options will live here.")
             }
-            className="w-9 h-9 rounded-full bg-white items-center justify-center"
+            className="w-9 h-9 rounded-full bg-[var(--color-primary)] items-center justify-center"
           >
             <Feather name="menu" size={18} color="#0F172A" />
           </Pressable>
         </View>
 
-        <Text className="font-outfit-bold text-[28px] text-black mb-1">Assessments</Text>
-        <Text className="font-outfit text-sm text-slate-500 mb-4">
+        <Text className="font-outfit-bold text-[28px] text-[var(--primary-font)] mb-1">Assessments</Text>
+        <Text className="font-outfit text-sm text-[var(--primary-font)]/55 mb-4">
           Database Systems CS-301 · {assessments.length} Total Assessments
         </Text>
 
@@ -78,7 +72,7 @@ export function AssessmentListScreen({
 
         {visibleAssessments.length === 0 ? (
           <View className="items-center py-16">
-            <Text className="font-outfit-medium text-slate-400">Nothing here yet</Text>
+            <Text className="font-outfit-medium text-[var(--primary-font)]/40">Nothing here yet</Text>
           </View>
         ) : (
           visibleAssessments.map((item) => (

@@ -10,7 +10,7 @@ interface AvatarProps {
 export function Avatar({
   label,
   bgClassName = "bg-[var(--color-purple)]",
-  textClassName = "text-black",
+  textClassName = "text-[var(--primary-font)]",
   sizeClassName = "w-10 h-10",
 }: AvatarProps) {
   return (

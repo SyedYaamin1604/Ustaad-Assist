@@ -13,10 +13,10 @@ export function TopicChip({ label, checked, dashed, onPress }: TopicChipProps) {
     return (
       <Pressable
         onPress={onPress}
-        className="flex-row items-center border border-dashed border-slate-300 rounded-full px-4 py-2"
+        className="flex-row items-center border border-dashed border-[var(--primary-font)]/20 rounded-full px-4 py-2"
       >
         <Feather name="plus" size={14} color="#64748B" />
-        <Text className="font-outfit-medium text-[13px] text-slate-500 ml-1.5">{label}</Text>
+        <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 ml-1.5">{label}</Text>
       </Pressable>
     );
   }
@@ -25,7 +25,7 @@ export function TopicChip({ label, checked, dashed, onPress }: TopicChipProps) {
     <Pressable
       onPress={onPress}
       className={`flex-row items-center rounded-full px-4 py-2 ${
-        checked ? "bg-slate-100" : "bg-white border border-slate-200"
+        checked ? "bg-[var(--primary-font)]/5" : "bg-[var(--color-primary)] border border-[var(--primary-font)]/15"
       }`}
     >
       {checked && (
@@ -33,7 +33,7 @@ export function TopicChip({ label, checked, dashed, onPress }: TopicChipProps) {
           <Feather name="check" size={14} color="#0F172A" />
         </View>
       )}
-      <Text className="font-outfit-medium text-[13px] text-slate-700">{label}</Text>
+      <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/75">{label}</Text>
     </Pressable>
   );
 }

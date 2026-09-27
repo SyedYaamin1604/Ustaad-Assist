@@ -1,6 +1,3 @@
-import { useMemo, useState } from "react";
-import { Feather } from "@expo/vector-icons";
-import { Modal, Pressable, Text, View } from "react-native";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import {
   MONTH_NAMES,
@@ -11,6 +8,9 @@ import {
   to12Hour,
   to24Hour,
 } from "@/utils/date";
+import { Feather } from "@expo/vector-icons";
+import { useMemo, useState } from "react";
+import { Modal, Pressable, Text, View } from "react-native";
 
 interface DateTimePickerModalProps {
   visible: boolean;
@@ -77,26 +77,26 @@ export function DateTimePickerModal({ visible, initialDate, onClose, onConfirm }
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View className="flex-1 justify-end bg-black/40">
+      <View className="flex-1 justify-end bg-[var(--color-secondary)]/40">
         <Pressable className="absolute inset-0" onPress={onClose} />
 
-        <View className="bg-white rounded-t-[28px] px-5 pt-5 pb-8">
+        <View className="bg-[var(--color-primary)] rounded-t-[28px] px-5 pt-5 pb-8">
           <View className="flex-row items-center justify-between mb-5">
-            <Text className="font-outfit-bold text-lg text-black">Select Date & Time</Text>
-            <Pressable onPress={onClose} className="w-9 h-9 rounded-full bg-slate-100 items-center justify-center">
+            <Text className="font-outfit-bold text-lg text-[var(--primary-font)]">Select Date & Time</Text>
+            <Pressable onPress={onClose} className="w-9 h-9 rounded-full bg-[var(--primary-font)]/5 items-center justify-center">
               <Feather name="x" size={18} color="#0F172A" />
             </Pressable>
           </View>
 
           {/* Month navigation */}
           <View className="flex-row items-center justify-between mb-3">
-            <Pressable onPress={goPrevMonth} className="w-8 h-8 rounded-full bg-slate-100 items-center justify-center">
+            <Pressable onPress={goPrevMonth} className="w-8 h-8 rounded-full bg-[var(--primary-font)]/5 items-center justify-center">
               <Feather name="chevron-left" size={16} color="#0F172A" />
             </Pressable>
-            <Text className="font-outfit-semibold text-[15px] text-black">
+            <Text className="font-outfit-semibold text-[15px] text-[var(--primary-font)]">
               {MONTH_NAMES[viewMonth]} {viewYear}
             </Text>
-            <Pressable onPress={goNextMonth} className="w-8 h-8 rounded-full bg-slate-100 items-center justify-center">
+            <Pressable onPress={goNextMonth} className="w-8 h-8 rounded-full bg-[var(--primary-font)]/5 items-center justify-center">
               <Feather name="chevron-right" size={16} color="#0F172A" />
             </Pressable>
           </View>
@@ -105,7 +105,7 @@ export function DateTimePickerModal({ visible, initialDate, onClose, onConfirm }
           <View className="flex-row mb-1">
             {WEEKDAY_LABELS.map((label, i) => (
               <View key={`${label}-${i}`} className="flex-1 items-center py-1">
-                <Text className="font-outfit-medium text-xs text-slate-400">{label}</Text>
+                <Text className="font-outfit-medium text-xs text-[var(--primary-font)]/40">{label}</Text>
               </View>
             ))}
           </View>
@@ -124,11 +124,11 @@ export function DateTimePickerModal({ visible, initialDate, onClose, onConfirm }
                     <Pressable
                       onPress={() => selectDay(day)}
                       className={`w-9 h-9 rounded-full items-center justify-center ${
-                        isSelected ? "bg-black" : ""
+                        isSelected ? "bg-[var(--color-secondary)]" : ""
                       }`}
                     >
                       <Text
-                        className={`font-outfit-medium text-[13px] ${isSelected ? "text-white" : "text-black"}`}
+                        className={`font-outfit-medium text-[13px] ${isSelected ? "text-[var(--secondary-font)]" : "text-[var(--primary-font)]"}`}
                       >
                         {day}
                       </Text>
@@ -140,19 +140,19 @@ export function DateTimePickerModal({ visible, initialDate, onClose, onConfirm }
           </View>
 
           {/* Time controls */}
-          <Text className="font-outfit-medium text-[13px] text-slate-500 mt-5 mb-2">Time</Text>
-          <View className="flex-row items-center justify-between bg-slate-100 rounded-2xl px-4 py-3.5">
+          <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 mt-5 mb-2">Time</Text>
+          <View className="flex-row items-center justify-between bg-[var(--primary-font)]/5 rounded-2xl px-4 py-3.5">
             <View className="flex-row items-center gap-3">
               <Stepper label={hour12.toString().padStart(2, "0")} onDecrease={() => stepHour(-1)} onIncrease={() => stepHour(1)} />
-              <Text className="font-outfit-bold text-lg text-black">:</Text>
+              <Text className="font-outfit-bold text-lg text-[var(--primary-font)]">:</Text>
               <Stepper label={minute.toString().padStart(2, "0")} onDecrease={() => stepMinute(-5)} onIncrease={() => stepMinute(5)} />
             </View>
 
             <Pressable
               onPress={() => setMeridiem((m) => (m === "AM" ? "PM" : "AM"))}
-              className="bg-black rounded-full px-4 py-2"
+              className="bg-[var(--color-secondary)] rounded-full px-4 py-2"
             >
-              <Text className="font-outfit-semibold text-xs text-white">{meridiem}</Text>
+              <Text className="font-outfit-semibold text-xs text-[var(--secondary-font)]">{meridiem}</Text>
             </Pressable>
           </View>
 
@@ -176,17 +176,17 @@ function Stepper({
 }) {
   return (
     <View className="items-center">
-      <Text className="font-outfit-bold text-xl text-black mb-1">{label}</Text>
+      <Text className="font-outfit-bold text-xl text-[var(--primary-font)] mb-1">{label}</Text>
       <View className="flex-row gap-1.5">
         <Pressable
           onPress={onDecrease}
-          className="w-7 h-7 rounded-full bg-white border border-slate-200 items-center justify-center"
+          className="w-7 h-7 rounded-full bg-[var(--color-primary)] border border-[var(--primary-font)]/15 items-center justify-center"
         >
           <Feather name="minus" size={12} color="#0F172A" />
         </Pressable>
         <Pressable
           onPress={onIncrease}
-          className="w-7 h-7 rounded-full bg-white border border-slate-200 items-center justify-center"
+          className="w-7 h-7 rounded-full bg-[var(--color-primary)] border border-[var(--primary-font)]/15 items-center justify-center"
         >
           <Feather name="plus" size={12} color="#0F172A" />
         </Pressable>

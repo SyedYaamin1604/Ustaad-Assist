@@ -102,38 +102,38 @@ export function CreateAssessmentModal({ visible, onClose, onSubmit, editingItem 
   return (
     <>
       <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-        <View className="flex-1 justify-end bg-black/40">
+        <View className="flex-1 justify-end bg-[var(--color-secondary)]/40">
           <Pressable className="absolute inset-0" onPress={onClose} />
 
-          <View className="bg-white rounded-t-[28px] px-5 pt-5 pb-8 max-h-[92%]">
+          <View className="bg-[var(--color-primary)] rounded-t-[28px] px-5 pt-5 pb-8 max-h-[92%]">
             <View className="flex-row items-center justify-between mb-5">
-              <Text className="font-outfit-bold text-xl text-black">
+              <Text className="font-outfit-bold text-xl text-[var(--primary-font)]">
                 {isEditing ? "Edit Assessment" : "Create Assessment"}
               </Text>
-              <Pressable onPress={onClose} className="w-9 h-9 rounded-full bg-slate-100 items-center justify-center">
+              <Pressable onPress={onClose} className="w-9 h-9 rounded-full bg-[var(--primary-font)]/5 items-center justify-center">
                 <Feather name="x" size={18} color="#0F172A" />
               </Pressable>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text className="font-outfit-medium text-[13px] text-slate-500 mb-2">Assessment Type</Text>
+              <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 mb-2">Assessment Type</Text>
               <SegmentedPills options={TYPE_OPTIONS} value={type} onChange={(v) => setType(v as AssessmentTypeOption)} />
 
-              <Text className="font-outfit-medium text-[13px] text-slate-500 mt-5 mb-2">Title</Text>
+              <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 mt-5 mb-2">Title</Text>
               <TextInput
                 value={title}
                 onChangeText={setTitle}
-                className="bg-slate-100 rounded-2xl px-4 py-3.5 font-outfit text-[15px] text-black"
+                className="bg-[var(--primary-font)]/5 rounded-2xl px-4 py-3.5 font-outfit text-[15px] text-[var(--primary-font)]"
               />
 
-              <Text className="font-outfit-medium text-[13px] text-slate-500 mt-5 mb-2">Scheduled Date & Time</Text>
+              <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 mt-5 mb-2">Scheduled Date & Time</Text>
               <Pressable
                 onPress={() => setPickerOpen(true)}
-                className="flex-row items-center justify-between bg-slate-100 rounded-2xl px-4 py-3.5"
+                className="flex-row items-center justify-between bg-[var(--primary-font)]/5 rounded-2xl px-4 py-3.5"
               >
                 <View className="flex-row items-center">
                   <Feather name="calendar" size={16} color="#0F172A" />
-                  <Text className="font-outfit-medium text-[15px] text-black ml-2.5">
+                  <Text className="font-outfit-medium text-[15px] text-[var(--primary-font)] ml-2.5">
                     {formatDateTime(scheduledDate)}
                   </Text>
                 </View>
@@ -149,12 +149,12 @@ export function CreateAssessmentModal({ visible, onClose, onSubmit, editingItem 
                 </View>
               )}
 
-              <Text className="font-outfit-medium text-[13px] text-slate-500 mt-5 mb-2">Total Marks</Text>
+              <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 mt-5 mb-2">Total Marks</Text>
               <MarksStepper value={marks} onChange={setMarks} />
 
               <View className="flex-row items-center justify-between mt-5 mb-2">
-                <Text className="font-outfit-medium text-[13px] text-slate-500">Linked Topics</Text>
-                <Text className="font-outfit-medium text-[13px] text-slate-400">{selectedTopics.length} selected</Text>
+                <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55">Linked Topics</Text>
+                <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/40">{selectedTopics.length} selected</Text>
               </View>
               <View className="flex-row flex-wrap gap-2 mb-2">
                 {availableTopics.map((topic) => (
@@ -177,11 +177,11 @@ export function CreateAssessmentModal({ visible, onClose, onSubmit, editingItem 
                     placeholder="Topic name"
                     placeholderTextColor="#94A3B8"
                     onSubmitEditing={confirmAddTopic}
-                    className="flex-1 bg-slate-100 rounded-full px-4 py-2.5 font-outfit text-[13px] text-black"
+                    className="flex-1 bg-[var(--primary-font)]/5 rounded-full px-4 py-2.5 font-outfit text-[13px] text-[var(--primary-font)]"
                   />
                   <Pressable
                     onPress={confirmAddTopic}
-                    className="w-9 h-9 rounded-full bg-black items-center justify-center"
+                    className="w-9 h-9 rounded-full bg-[var(--color-secondary)] items-center justify-center"
                   >
                     <Feather name="check" size={14} color="#fff" />
                   </Pressable>
@@ -190,7 +190,7 @@ export function CreateAssessmentModal({ visible, onClose, onSubmit, editingItem 
                       setAddingTopic(false);
                       setNewTopicText("");
                     }}
-                    className="w-9 h-9 rounded-full bg-slate-100 items-center justify-center"
+                    className="w-9 h-9 rounded-full bg-[var(--primary-font)]/5 items-center justify-center"
                   >
                     <Feather name="x" size={14} color="#0F172A" />
                   </Pressable>
