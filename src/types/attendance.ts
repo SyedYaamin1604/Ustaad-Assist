@@ -1,28 +1,30 @@
-export type AttendanceStatus = "present" | "absent" | "leave";
+import type { AttendanceStatus } from "@/api/types";
 
-export interface StudentRecord {
-  id: string;
+export type { AttendanceStatus };
+
+export type AttendanceView = "mark" | "summary";
+
+/** One student on the marking screen. */
+export interface MarkEntry {
+  student_id: string;
+  roll_no: string;
   name: string;
-  rollNo: string;
-  initials: string;
-  avatarBg: string;
-  avatarText: string;
-}
-
-export interface StudentSummary extends StudentRecord {
-  attendancePct: number; // 0-100
-  attended: number;
-  totalLectures: number;
-}
-
-export interface StudentMarkEntry extends StudentRecord {
   status: AttendanceStatus;
+}
+
+/** One student on the summary screen, with the backend's percentage. */
+export interface SummaryEntry {
+  student_id: string;
+  roll_no: string;
+  name: string;
+  /** null before any class has been held. */
+  percentage: number | null;
+  present: number;
+  /** Classes that count: present + absent (leave is excused). */
+  counted: number;
 }
 
 export interface LectureInfo {
   label: string; // "Lecture 7 · Tue 22 Sep"
-  topic: string; // "SQL Joins (Part 2)"
-  time: string; // "10:00 AM - 11:30 AM"
+  topic: string; // "SQL Joins (Part 2 of 3)"
 }
-
-export type AttendanceView = "mark" | "summary";

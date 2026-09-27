@@ -1,103 +1,48 @@
-import { AISuggestionBanner } from "../../components/assessment/AISuggestionBanner";
-import { MarksStepper } from "../../components/assessment/MarksStepper";
-import { TopicChip } from "../../components/assessment/TopicChip";
-import { DateTimePickerModal } from "../../components/ui/DateTimePickerModal";
-import { PrimaryButton } from "../../components/ui/PrimaryButton";
-import { SegmentedPills } from "../../components/ui/SegmentedPills";
-import { AssessmentDraft, AssessmentItem, AssessmentTypeOption } from "../../types/assessment";
-import { formatDateTime } from "../../utils/date";
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
+import type { CreateAssessmentInput } from "@/api/assessments";
+import type { ComponentType, Session, Topic } from "@/api/types";
+import { AISuggestionBanner } from "@/components/assessment/AISuggestionBanner";
+import { MarksStepper } from "@/components/assessment/MarksStepper";
+import { TopicChip } from "@/components/assessment/TopicChip";
+import { DateTimePickerModal } from "@/components/ui/DateTimePickerModal";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { SegmentedPills } from "@/components/ui/SegmentedPills";
+import { assessmentDateCheck } from "@/utils/assessment";
+import { formatDayMonth, formatShortDate, parseISODate, toISODate, today } from "@/utils/date";
+import { COMPONENT_LABEL, COMPONENTS } from "@/utils/format";
+
 interface CreateAssessmentModalProps {
   visible: boolean;
+  topics: Topic[];
+  /** The current timetable, to check the date against when topics are taught. */
+  sessions: Session[];
+  saving: boolean;
   onClose: () => void;
-  onSubmit: (draft: AssessmentDraft) => void;
-  editingItem?: AssessmentItem | null;
+  onSubmit: (input: CreateAssessmentInput) => void;
 }
 
-const TYPE_OPTIONS: AssessmentTypeOption[] = ["Quiz", "Assignment", "Midterm", "Final", "Participation"];
-const BASE_TOPICS = ["SQL Basics", "SQL Joins", "Normalization"];
-const DEFAULT_DATE = new Date(2026, 8, 25, 10, 0);
+const MIN_MARKS = 5;
 
-export function CreateAssessmentModal({ visible, onClose, onSubmit, editingItem }: CreateAssessmentModalProps) {
-  const isEditing = !!editingItem;
-
-  const [type, setType] = useState<AssessmentTypeOption>("Quiz");
-  const [title, setTitle] = useState("Quiz 2: SQL Joins & Subqueries");
-  const [marks, setMarks] = useState(15);
-  const [scheduledDate, setScheduledDate] = useState(DEFAULT_DATE);
-  const [availableTopics, setAvailableTopics] = useState<string[]>(BASE_TOPICS);
-  const [selectedTopics, setSelectedTopics] = useState<string[]>(BASE_TOPICS);
-  const [suggestionDismissed, setSuggestionDismissed] = useState(false);
+// Parent should remount (key) it each time it opens, so the form starts empty.
+export function CreateAssessmentModal({ visible, topics, sessions, saving, onClose, onSubmit }: CreateAssessmentModalProps) {
+  const [type, setType] = useState<ComponentType>("quiz");
+  const [title, setTitle] = useState("");
+  const [marks, setMarks] = useState(10);
+  const [date, setDate] = useState<string | null>(toISODate(today()));
+  const [topicIds, setTopicIds] = useState<string[]>([]);
   const [isPickerOpen, setPickerOpen] = useState(false);
-  const [isAddingTopic, setAddingTopic] = useState(false);
-  const [newTopicText, setNewTopicText] = useState("");
 
-  // Reset / prefill whenever the sheet opens (adjusting state during render, not in an effect)
-  const [prevOpenKey, setPrevOpenKey] = useState<{ visible: boolean; editingItem: typeof editingItem } | null>(null);
-  if (!prevOpenKey || prevOpenKey.visible !== visible || prevOpenKey.editingItem !== editingItem) {
-    setPrevOpenKey({ visible, editingItem });
-    if (visible) resetForm();
-  }
+  // Dropped topics will never be taught, so they cannot be assessed.
+  const selectable = topics.filter((t) => t.status !== "dropped");
+  const clash = date ? assessmentDateCheck(date, topicIds, sessions) : null;
 
-  function resetForm() {
-    if (editingItem) {
-      setType(editingItem.type);
-      setTitle(editingItem.title);
-      setMarks(Number(editingItem.marksLabel.replace(/\D/g, "")) || 15);
-      setScheduledDate(DEFAULT_DATE);
-      setAvailableTopics(editingItem.topics?.length ? editingItem.topics : BASE_TOPICS);
-      setSelectedTopics(editingItem.topics ?? BASE_TOPICS);
-    } else {
-      setType("Quiz");
-      setTitle("Quiz 2: SQL Joins & Subqueries");
-      setMarks(15);
-      setScheduledDate(DEFAULT_DATE);
-      setAvailableTopics(BASE_TOPICS);
-      setSelectedTopics(BASE_TOPICS);
-    }
-    setSuggestionDismissed(false);
-    setAddingTopic(false);
-    setNewTopicText("");
-  }
+  const toggleTopic = (id: string) =>
+    setTopicIds((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
 
-  const toggleTopic = (topic: string) => {
-    setSelectedTopics((prev) =>
-      prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic]
-    );
-  };
-
-  const confirmAddTopic = () => {
-    const trimmed = newTopicText.trim();
-    if (trimmed.length > 0 && !availableTopics.includes(trimmed)) {
-      setAvailableTopics((prev) => [...prev, trimmed]);
-      setSelectedTopics((prev) => [...prev, trimmed]);
-    }
-    setNewTopicText("");
-    setAddingTopic(false);
-  };
-
-  const acceptDateSuggestion = () => {
-    setScheduledDate((prev) => {
-      const next = new Date(prev);
-      next.setDate(next.getDate() + 1);
-      return next;
-    });
-    setSuggestionDismissed(true);
-  };
-
-  const handleSubmit = () => {
-    onSubmit({
-      id: editingItem?.id,
-      type,
-      title,
-      marks,
-      topics: selectedTopics,
-      scheduledDate,
-    });
-  };
+  const canSave = title.trim() !== "" && !saving;
 
   return (
     <>
@@ -107,100 +52,85 @@ export function CreateAssessmentModal({ visible, onClose, onSubmit, editingItem 
 
           <View className="bg-[var(--color-primary)] rounded-t-[28px] px-5 pt-5 pb-8 max-h-[92%]">
             <View className="flex-row items-center justify-between mb-5">
-              <Text className="font-outfit-bold text-xl text-[var(--primary-font)]">
-                {isEditing ? "Edit Assessment" : "Create Assessment"}
-              </Text>
+              <Text className="font-outfit-bold text-xl text-[var(--primary-font)]">Create Assessment</Text>
               <Pressable onPress={onClose} className="w-9 h-9 rounded-full bg-[var(--primary-font)]/5 items-center justify-center">
                 <Feather name="x" size={18} color="#0F172A" />
               </Pressable>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 mb-2">Assessment Type</Text>
-              <SegmentedPills options={TYPE_OPTIONS} value={type} onChange={(v) => setType(v as AssessmentTypeOption)} />
+              <SegmentedPills
+                options={COMPONENTS.map((c) => COMPONENT_LABEL[c])}
+                value={COMPONENT_LABEL[type]}
+                onChange={(label) => setType(COMPONENTS.find((c) => COMPONENT_LABEL[c] === label) ?? "quiz")}
+              />
 
               <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 mt-5 mb-2">Title</Text>
               <TextInput
                 value={title}
                 onChangeText={setTitle}
+                placeholder={`e.g. ${COMPONENT_LABEL[type]} 1`}
+                placeholderTextColor="#94A3B8"
                 className="bg-[var(--primary-font)]/5 rounded-2xl px-4 py-3.5 font-outfit text-[15px] text-[var(--primary-font)]"
               />
 
-              <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 mt-5 mb-2">Scheduled Date & Time</Text>
-              <Pressable
-                onPress={() => setPickerOpen(true)}
-                className="flex-row items-center justify-between bg-[var(--primary-font)]/5 rounded-2xl px-4 py-3.5"
-              >
-                <View className="flex-row items-center">
-                  <Feather name="calendar" size={16} color="#0F172A" />
-                  <Text className="font-outfit-medium text-[15px] text-[var(--primary-font)] ml-2.5">
-                    {formatDateTime(scheduledDate)}
-                  </Text>
-                </View>
-                <Feather name="clock" size={16} color="#64748B" />
-              </Pressable>
+              <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 mt-5 mb-2">Date</Text>
+              <View className="flex-row gap-2">
+                <Pressable
+                  onPress={() => setPickerOpen(true)}
+                  className="flex-1 flex-row items-center justify-between bg-[var(--primary-font)]/5 rounded-2xl px-4 py-3.5"
+                >
+                  <View className="flex-row items-center">
+                    <Feather name="calendar" size={16} color="#0F172A" />
+                    <Text className="font-outfit-medium text-[15px] text-[var(--primary-font)] ml-2.5">
+                      {date ? formatShortDate(parseISODate(date)) : "Not scheduled yet"}
+                    </Text>
+                  </View>
+                  <Feather name="chevron-down" size={16} color="#64748B" />
+                </Pressable>
+                {date && (
+                  <Pressable onPress={() => setDate(null)} className="justify-center rounded-2xl bg-[var(--primary-font)]/5 px-4">
+                    <Text className="font-outfit-medium text-xs text-[var(--primary-font)]/60">Set later</Text>
+                  </Pressable>
+                )}
+              </View>
 
-              {!suggestionDismissed && (
+              {clash && (
                 <View className="mt-4">
                   <AISuggestionBanner
-                    message="Normalization finishes on 24 Sep. Move to 25 Sep?"
-                    onAccept={acceptDateSuggestion}
+                    message={`These topics are taught until ${formatDayMonth(clash.lastTaught)}. Move to ${formatDayMonth(clash.suggested)}?`}
+                    actionLabel="Move"
+                    onAccept={() => setDate(clash.suggested)}
                   />
                 </View>
               )}
 
               <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 mt-5 mb-2">Total Marks</Text>
-              <MarksStepper value={marks} onChange={setMarks} />
+              <MarksStepper value={marks} onChange={(value) => setMarks(Math.max(MIN_MARKS, value))} />
 
               <View className="flex-row items-center justify-between mt-5 mb-2">
-                <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55">Linked Topics</Text>
-                <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/40">{selectedTopics.length} selected</Text>
+                <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55">Topics it covers</Text>
+                <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/40">{topicIds.length} selected</Text>
               </View>
-              <View className="flex-row flex-wrap gap-2 mb-2">
-                {availableTopics.map((topic) => (
-                  <TopicChip
-                    key={topic}
-                    label={topic}
-                    checked={selectedTopics.includes(topic)}
-                    onPress={() => toggleTopic(topic)}
-                  />
+              <Text className="font-outfit text-xs text-[var(--primary-font)]/45 mb-2">
+                The planner never schedules it before these are taught.
+              </Text>
+              <View className="flex-row flex-wrap gap-2 mb-6">
+                {selectable.map((topic) => (
+                  <TopicChip key={topic.id} label={topic.title} checked={topicIds.includes(topic.id)} onPress={() => toggleTopic(topic.id)} />
                 ))}
-                {!isAddingTopic && <TopicChip label="Add topic" dashed onPress={() => setAddingTopic(true)} />}
+                {selectable.length === 0 && (
+                  <Text className="font-outfit text-xs text-[var(--primary-font)]/45">This course has no topics yet.</Text>
+                )}
               </View>
-
-              {isAddingTopic && (
-                <View className="flex-row items-center gap-2 mb-6">
-                  <TextInput
-                    autoFocus
-                    value={newTopicText}
-                    onChangeText={setNewTopicText}
-                    placeholder="Topic name"
-                    placeholderTextColor="#94A3B8"
-                    onSubmitEditing={confirmAddTopic}
-                    className="flex-1 bg-[var(--primary-font)]/5 rounded-full px-4 py-2.5 font-outfit text-[13px] text-[var(--primary-font)]"
-                  />
-                  <Pressable
-                    onPress={confirmAddTopic}
-                    className="w-9 h-9 rounded-full bg-[var(--color-secondary)] items-center justify-center"
-                  >
-                    <Feather name="check" size={14} color="#fff" />
-                  </Pressable>
-                  <Pressable
-                    onPress={() => {
-                      setAddingTopic(false);
-                      setNewTopicText("");
-                    }}
-                    className="w-9 h-9 rounded-full bg-[var(--primary-font)]/5 items-center justify-center"
-                  >
-                    <Feather name="x" size={14} color="#0F172A" />
-                  </Pressable>
-                </View>
-              )}
-              {!isAddingTopic && <View className="mb-4" />}
 
               <PrimaryButton
-                label={isEditing ? "Save changes" : "Create & add questions"}
-                onPress={handleSubmit}
+                label={saving ? "Creating..." : "Create assessment"}
+                disabled={!canSave}
+                onPress={() =>
+                  onSubmit({ type, title: title.trim(), total_marks: marks, date, topic_ids: topicIds })
+                }
               />
             </ScrollView>
           </View>
@@ -208,10 +138,12 @@ export function CreateAssessmentModal({ visible, onClose, onSubmit, editingItem 
       </Modal>
 
       <DateTimePickerModal
+        key={`${isPickerOpen}`}
+        mode="date"
         visible={isPickerOpen}
-        initialDate={scheduledDate}
+        initialDate={date ? parseISODate(date) : today()}
         onClose={() => setPickerOpen(false)}
-        onConfirm={setScheduledDate}
+        onConfirm={(picked) => setDate(toISODate(picked))}
       />
     </>
   );

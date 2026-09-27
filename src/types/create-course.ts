@@ -1,93 +1,22 @@
-export type WeekDay = "M" | "T" | "W" | "T2" | "F" | "S" | "S2";
+import type { DayName } from "@/api/types";
 
-export const WEEK_DAYS: { key: WeekDay; label: string }[] = [
-  { key: "M", label: "M" },
-  { key: "T", label: "T" },
-  { key: "W", label: "W" },
-  { key: "T2", label: "T" },
-  { key: "F", label: "F" },
-  { key: "S", label: "S" },
-  { key: "S2", label: "S" },
-];
-
-export interface Topic {
-  id: string;
-  title: string;
+/** What step 1 of the new-course flow collects — exactly the backend's minimum. */
+export interface CourseDetailsForm {
+  name: string;
+  code: string;
+  semester: string;
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+  classDays: DayName[];
 }
 
-export interface GradingCriterion {
-  id: string;
-  label: string;
-  weight: number;
-}
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-export interface Holiday {
-  id: string;
-  day: string;
-  month: string;
-  title: string;
-  note: string;
-  skipClasses: boolean;
+/** The same checks the backend makes, so the teacher sees them before the request. */
+export function validateCourseDetails(form: Pick<CourseDetailsForm, "startDate" | "endDate" | "classDays"> & { name?: string }): string | null {
+  if (form.name !== undefined && form.name.trim() === "") return "Enter the course name.";
+  if (!DATE_PATTERN.test(form.startDate) || !DATE_PATTERN.test(form.endDate)) return "Pick a start and end date.";
+  if (form.endDate <= form.startDate) return "The end date must be after the start date.";
+  if (form.classDays.length === 0) return "Pick at least one class day.";
+  return null;
 }
-
-export interface SourceCourse {
-  id: string;
-  badge: string;
-  title: string;
-  meta: string;
-  bg: string;
-}
-
-export interface CourseDetails {
-  courseName: string;
-  semesterTerm: string;
-  startDate: string;
-  endDate: string;
-  classDays: WeekDay[];
-  aiCopilotEnabled: boolean;
-}
-
-export interface NewCourseFormData {
-  details: CourseDetails;
-  topics: Topic[];
-  gradingCriteria: GradingCriterion[];
-  holidays: Holiday[];
-}
-
-export interface CloneCourseFormData {
-  sourceCourseId: string | null;
-  copyOptions: {
-    topicsAndPriorities: boolean;
-    weightageAndGrading: boolean;
-    assessmentStructure: boolean;
-  };
-  details: {
-    startDate: string;
-    endDate: string;
-    classDays: WeekDay[];
-  };
-}
-
-export const SOURCE_COURSES: SourceCourse[] = [
-  {
-    id: "cs301",
-    badge: "ARCHIVED SYLLABUS",
-    title: "Database Systems CS-301",
-    meta: "Fall 2025 · 32 sessions · 60 students",
-    bg: "bg-[var(--color-pink)]",
-  },
-  {
-    id: "cs201",
-    badge: "SPRING COHORT",
-    title: "Data Structures CS-201",
-    meta: "Spring 2025 · 30 sessions",
-    bg: "bg-[var(--color-yellow)]",
-  },
-  {
-    id: "cs202",
-    badge: "PAST TERM",
-    title: "Algorithms CS-202",
-    meta: "Fall 2024 · 32 sessions",
-    bg: "bg-[var(--color-emerald)]",
-  },
-];

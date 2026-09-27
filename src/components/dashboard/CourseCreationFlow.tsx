@@ -1,78 +1,200 @@
+/**
+ * New course, start to finish.
+ *
+ *   choose   ── new or clone?
+ *   details  ── POST /courses          (PATCH if the teacher comes back to edit)
+ *   topics   ── POST /courses/:id/topics   one textarea, one topic per line
+ *   holidays ── POST /courses/:id/holidays  only the ticks that changed
+ *               POST /courses/:id/plan/generate
+ *   done     ── the generated plan
+ *
+ * The backend needs the course to exist before topics and holidays can be
+ * attached, which is why the course is created at the end of step 1. If the
+ * teacher closes the flow part-way, the course stays and shows "Plan not
+ * generated" on the course list.
+ */
+
+import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Modal, View } from "react-native";
-import CreateCourseModal from "./CreateCourseModal";
+import { Alert, Modal, View } from "react-native";
+
+import {
+  coursesApi,
+  planApi,
+  type CourseDetail,
+  type PlanGenerateResult,
+  type Topic,
+} from "@/api";
+import { PlanGeneratedScreen } from "@/components/plan/PlanGeneratedScreen";
+import { useAction } from "@/hooks/useAction";
+import { pickDocument, takePhoto } from "@/lib/pickers";
+import { buildStoragePath, uploadFile } from "@/lib/storage";
+import { useAuth } from "@/providers/AuthProvider";
+import { useCourse } from "@/providers/CourseProvider";
+import { validateCourseDetails, type CourseDetailsForm } from "@/types/create-course";
+import { addDays, toISODate, today } from "@/utils/date";
+import { showError } from "@/utils/errors";
 import CourseDetailsScreen from "./CourseDetailsScreen";
-import TopicsScreen from "./TopicsScreens";
-import ImportedSyllabusReviewScreen from "./ImportedSyllabusReviewScreen";
+import CreateCourseModal from "./CreateCourseModal";
 import HolidaysScreen from "./HolidaysScreen";
-import CloneCourseScreen from "./CloneCourseScreen";
-import { CloneCourseFormData, NewCourseFormData } from "../../types/create-course";
+import TopicsScreen from "./TopicsScreens";
 
-type Stage =
-  | "choose"
-  | "new-details"
-  | "new-topics"
-  | "new-import"
-  | "new-holidays"
-  | "clone";
+type Stage = "choose" | "details" | "topics" | "holidays" | "done";
 
-const emptyNewCourseForm: NewCourseFormData = {
-  details: {
-    courseName: "Database Systems CS-301",
-    semesterTerm: "Fall 2026",
-    startDate: "2026-09-01",
-    endDate: "2026-12-20",
-    classDays: ["T", "F"],
-    aiCopilotEnabled: true,
-  },
-  topics: [
-    { id: "1", title: "ER Modeling" },
-    { id: "2", title: "Relational Model" },
-    { id: "3", title: "Relational Algebra" },
-    { id: "4", title: "SQL Basics" },
-    { id: "5", title: "SQL Joins" },
-    { id: "6", title: "Aggregation" },
-    { id: "7", title: "Normalization" },
-    { id: "8", title: "Transactions" },
-    { id: "9", title: "Indexing" },
-  ],
-  gradingCriteria: [
-    { id: "quizzes", label: "Quizzes", weight: 10 },
-    { id: "assignments", label: "Assignments", weight: 10 },
-    { id: "midterm", label: "Midterm Exam", weight: 30 },
-    { id: "final", label: "Final Exam", weight: 40 },
-    { id: "participation", label: "Class Participation", weight: 10 },
-  ],
-  holidays: [
-    { id: "h1", day: "09", month: "NOV", title: "Iqbal Day", note: "Monday · No class conflict", skipClasses: true },
-    { id: "h2", day: "25", month: "DEC", title: "Quaid-e-Azam Day", note: "Friday · Affects 1 class session", skipClasses: true },
-    { id: "h3", day: "09", month: "OCT", title: "Fall Mid-Term Break", note: "Friday · Affects 1 class session", skipClasses: true },
-    { id: "h4", day: "12", month: "OCT", title: "Department Research Day", note: "Optional / Guest lecture", skipClasses: false },
-  ],
-};
+const SEMESTER_WEEKS = 16;
+
+function initialDetails(): CourseDetailsForm {
+  const start = today();
+  return {
+    name: "",
+    code: "",
+    semester: "",
+    startDate: toISODate(start),
+    endDate: toISODate(addDays(start, SEMESTER_WEEKS * 7)),
+    classDays: [],
+  };
+}
 
 interface CourseCreationFlowProps {
-  visible: boolean;
   onClose: () => void;
 }
 
-const CourseCreationFlow = ({ visible, onClose }: CourseCreationFlowProps) => {
+const CourseCreationFlow = ({ onClose }: CourseCreationFlowProps) => {
+  const router = useRouter();
+  const { selectCourse } = useCourse();
+  const { session } = useAuth();
+  const { busy, run } = useAction();
+
   const [stage, setStage] = useState<Stage>("choose");
-  const [form, setForm] = useState<NewCourseFormData>(emptyNewCourseForm);
+  const [details, setDetails] = useState<CourseDetailsForm>(initialDetails);
+  const [topicsText, setTopicsText] = useState("");
+  const [importing, setImporting] = useState(false);
+  // Class counts the outline stated ("Week 3-4" = 4 classes), by lower-cased title.
+  const [outlineLengths, setOutlineLengths] = useState<Record<string, number>>({});
 
-  const reset = () => {
-    setStage("choose");
-    onClose();
+  // Filled in as the flow reaches the backend.
+  const [courseId, setCourseId] = useState<string | null>(null);
+  const [course, setCourse] = useState<CourseDetail | null>(null);
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [holidayTicks, setHolidayTicks] = useState<Record<string, boolean>>({});
+  const [plan, setPlan] = useState<PlanGenerateResult | null>(null);
+
+  // ---- step 1
+  const submitDetails = async () => {
+    const problem = validateCourseDetails(details);
+    if (problem) {
+      Alert.alert("Check the details", problem);
+      return;
+    }
+
+    const input = {
+      name: details.name.trim(),
+      code: details.code.trim() || null,
+      semester: details.semester.trim() || null,
+      start_date: details.startDate,
+      end_date: details.endDate,
+      class_days: details.classDays,
+    };
+
+    const saved = await run(
+      () => (courseId ? coursesApi.update(courseId, input) : coursesApi.create(input)),
+      "Couldn't save the course",
+    );
+    if (!saved) return;
+
+    setCourseId(saved.id);
+    setStage("topics");
   };
 
-  const submitNewCourse = () => {
-    console.log("NEW COURSE SUBMITTED:", { kind: "new", ...form });
-    reset();
+  // ---- step 2
+  const submitTopics = async () => {
+    if (!courseId) return;
+
+    const loaded = await run(async () => {
+      let savedTopics = await coursesApi.setTopics(courseId, topicsText);
+
+      // Topics only take titles; apply the lengths the outline stated, so the
+      // planner starts with real numbers instead of 1 class each. A topic the
+      // teacher renamed in the textarea simply keeps the default.
+      const lengthened = savedTopics.filter((t) => (outlineLengths[t.title.trim().toLowerCase()] ?? 1) > 1);
+      if (lengthened.length > 0) {
+        const updated = await Promise.all(
+          lengthened.map((t) =>
+            coursesApi.updateTopic(t.id, { sessions_needed: outlineLengths[t.title.trim().toLowerCase()] }),
+          ),
+        );
+        const byId = new Map(updated.map((t) => [t.id, t]));
+        savedTopics = savedTopics.map((t) => byId.get(t.id) ?? t);
+      }
+
+      // Re-read the course: it carries the holidays the server preloaded, with
+      // their dates already formatted.
+      const detail = await coursesApi.get(courseId);
+      return { savedTopics, detail };
+    }, "Couldn't save the topics");
+    if (!loaded) return;
+
+    setTopics(loaded.savedTopics);
+    setCourse(loaded.detail);
+    setHolidayTicks(Object.fromEntries(loaded.detail.holidays.map((h) => [h.id, h.is_active])));
+    setStage("holidays");
   };
 
-  const submitClone = (cloneData: CloneCourseFormData) => {
-    console.log("COURSE CLONED:", { kind: "clone", ...cloneData });
-    reset();
+  const readOutline = async (source: "camera" | "file") => {
+    if (!courseId) return;
+    setImporting(true);
+    try {
+      const file = source === "camera" ? await takePhoto() : await pickDocument(["application/pdf", "image/*"]);
+      if (!file) return;
+
+      const path = await uploadFile(file, buildStoragePath(session!.user.id, courseId, "outlines", file.name));
+      const extracted = await coursesApi.importOutline(courseId, path);
+
+      // The textarea is the review screen: the teacher corrects it before continuing.
+      setTopicsText(extracted.rows.map((row) => row.title).join("\n"));
+      setOutlineLengths(
+        Object.fromEntries(
+          extracted.rows
+            .filter((row) => row.sessions_needed !== null)
+            .map((row) => [row.title.trim().toLowerCase(), row.sessions_needed as number]),
+        ),
+      );
+      const unsure = extracted.rows.filter((row) => row.confidence < 0.8).length;
+      Alert.alert(
+        "Check the topics",
+        `We read ${extracted.rows.length} topics from the outline.${unsure > 0 ? " It was a photo, so read them through carefully." : ""} Fix anything that is wrong, then continue.`,
+      );
+    } catch (error) {
+      showError(error, "Couldn't read the outline");
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const importOutline = () =>
+    Alert.alert("Import course outline", "Photograph the printed outline, or choose the PDF.", [
+      { text: "Take a photo", onPress: () => readOutline("camera") },
+      { text: "Choose a PDF or image", onPress: () => readOutline("file") },
+      { text: "Cancel", style: "cancel" },
+    ]);
+
+  // ---- step 3
+  const generatePlan = async () => {
+    if (!courseId || !course) return;
+
+    const changed = course.holidays
+      .filter((h) => holidayTicks[h.id] !== h.is_active)
+      .map((h) => ({ id: h.id, is_active: holidayTicks[h.id] }));
+
+    const result = await run(async () => {
+      if (changed.length > 0) await coursesApi.setHolidays(courseId, changed);
+      return planApi.generate(courseId);
+    }, "Couldn't generate the plan");
+    if (!result) return;
+
+    selectCourse(courseId);
+    setPlan(result);
+    setStage("done");
   };
 
   // The chooser is its own transparent bottom-sheet Modal; nesting it inside the
@@ -80,97 +202,57 @@ const CourseCreationFlow = ({ visible, onClose }: CourseCreationFlowProps) => {
   if (stage === "choose") {
     return (
       <CreateCourseModal
-        visible={visible}
-        onClose={reset}
-        onSelectNew={() => setStage("new-details")}
-        onSelectClone={() => setStage("clone")}
+        visible
+        onClose={onClose}
+        onSelectNew={() => setStage("details")}
+        onSelectClone={() => router.replace("/course/clone")}
       />
     );
   }
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={reset}>
+    <Modal visible animationType="slide" onRequestClose={onClose}>
       <View className="flex-1 bg-slate-50">
-        {stage === "new-details" && (
-          <CourseDetailsScreen
-            value={form.details}
-            onChange={(details) => setForm((f) => ({ ...f, details }))}
-            onBack={reset}
-            onContinue={() => setStage("new-topics")}
-          />
+        {stage === "details" && (
+          <CourseDetailsScreen value={details} onChange={setDetails} onBack={onClose} onContinue={submitDetails} busy={busy} />
         )}
 
-        {stage === "new-topics" && (
+        {stage === "topics" && (
           <TopicsScreen
-            topics={form.topics}
-            onChange={(topics) => setForm((f) => ({ ...f, topics }))}
-            onBack={() => setStage("new-details")}
-            onContinue={() => setStage("new-holidays")}
-            onImportOutline={() => setStage("new-import")}
+            value={topicsText}
+            onChange={setTopicsText}
+            onBack={() => setStage("details")}
+            onContinue={submitTopics}
+            onImportOutline={importOutline}
+            busy={busy}
+            importing={importing}
           />
         )}
 
-        {stage === "new-import" && (
-          <ImportedSyllabusReviewScreen
-            topics={form.topics}
-            onChangeTopics={(topics) => setForm((f) => ({ ...f, topics }))}
-            onAddTopic={() =>
-              setForm((f) => ({
-                ...f,
-                topics: [...f.topics, { id: `topic-${Date.now()}`, title: "New topic" }],
-              }))
-            }
-            gradingCriteria={form.gradingCriteria}
-            onChangeCriterion={(id, delta) =>
-              setForm((f) => ({
-                ...f,
-                gradingCriteria: f.gradingCriteria.map((c) =>
-                  c.id === id ? { ...c, weight: Math.max(0, c.weight + delta) } : c
-                ),
-              }))
-            }
-            onSave={() => setStage("new-topics")}
-          />
-        )}
-
-        {stage === "new-holidays" && (
+        {stage === "holidays" && course && (
           <HolidaysScreen
-            holidays={form.holidays}
-            onToggle={(id) =>
-              setForm((f) => ({
-                ...f,
-                holidays: f.holidays.map((h) =>
-                  h.id === id ? { ...h, skipClasses: !h.skipClasses } : h
-                ),
-              }))
-            }
-            onAddCustom={() =>
-              setForm((f) => ({
-                ...f,
-                holidays: [
-                  ...f.holidays,
-                  {
-                    id: `holiday-${Date.now()}`,
-                    day: "01",
-                    month: "JAN",
-                    title: "New holiday",
-                    note: "Custom",
-                    skipClasses: true,
-                  },
-                ],
-              }))
-            }
-            onBack={() => setStage("new-topics")}
-            onGenerate={submitNewCourse}
+            holidays={course.holidays}
+            classDays={course.class_days}
+            active={holidayTicks}
+            onToggle={(id) => setHolidayTicks((prev) => ({ ...prev, [id]: !prev[id] }))}
+            onBack={() => setStage("topics")}
+            onGenerate={generatePlan}
+            busy={busy}
           />
         )}
 
-        {stage === "clone" && (
-          <CloneCourseScreen onBack={reset} onComplete={submitClone} />
+        {stage === "done" && course && plan && (
+          <PlanGeneratedScreen
+            course={course}
+            topics={topics}
+            result={plan}
+            onAddStudents={() => router.replace("/students")}
+            onOpenDashboard={() => router.replace("/home")}
+          />
         )}
       </View>
     </Modal>
   );
-}
+};
 
-export default CourseCreationFlow; 
+export default CourseCreationFlow;

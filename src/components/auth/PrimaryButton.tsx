@@ -1,16 +1,19 @@
 import React from "react";
-import { Pressable, Text } from "react-native";
+import { ActivityIndicator, Pressable, Text } from "react-native";
 
 type PrimaryButtonProps = {
   label: string;
   onPress?: () => void;
+  /** Shows a spinner and ignores presses while a request is in flight. */
+  loading?: boolean;
 };
 
-const PrimaryButton = ({ label, onPress }: PrimaryButtonProps) => {
+const PrimaryButton = ({ label, onPress, loading = false }: PrimaryButtonProps) => {
   return (
     <Pressable
-      onPress={onPress}
-      className="bg-[var(--color-secondary)] py-4 rounded-full items-center mb-3 active:opacity-90"
+      onPress={loading ? undefined : onPress}
+      disabled={loading}
+      className={`bg-[var(--color-secondary)] py-4 rounded-full items-center mb-3 active:opacity-90 ${loading ? "opacity-70" : ""}`}
       style={{
         shadowColor: "#000",
         shadowOpacity: 0.18,
@@ -19,9 +22,11 @@ const PrimaryButton = ({ label, onPress }: PrimaryButtonProps) => {
         elevation: 5,
       }}
     >
-      <Text className="text-[var(--secondary-font)] font-outfit-semibold text-[16px]">
-        {label}
-      </Text>
+      {loading ? (
+        <ActivityIndicator color="#fff" />
+      ) : (
+        <Text className="text-[var(--secondary-font)] font-outfit-semibold text-[16px]">{label}</Text>
+      )}
     </Pressable>
   );
 };

@@ -1,47 +1,48 @@
-import { EditTopicSheet } from "@/components/plan/EditTopicSheet";
-import { PlanTopBar } from "@/components/plan/PlanTopBar";
-import { StatusBadge, BadgeTone } from "@/components/ui/StatusBadge";
-import { PlanTopic, TopicPriority } from "@/types/plan";
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
+
+import type { Priority, Topic } from "@/api/types";
+import { EditTopicSheet, type TopicEdit } from "@/components/plan/EditTopicSheet";
+import { PlanTopBar } from "@/components/plan/PlanTopBar";
+import { StatusBadge, type BadgeTone } from "@/components/ui/StatusBadge";
 
 interface TopicsScreenProps {
-  topics: PlanTopic[];
-  availableSessions: number;
+  topics: Topic[];
+  /** Planned classes still to come. */
+  classesLeft: number;
+  /** A topic change has made the timetable out of date. */
+  needsReplan: boolean;
+  busy: boolean;
   onBack: () => void;
-  onChange: (topics: PlanTopic[]) => void;
+  onSave: (topic: Topic, edit: TopicEdit) => Promise<boolean>;
+  onSwap: (a: Topic, b: Topic) => void;
+  onRebuild: () => void;
 }
 
-const PRIORITY_TONE: Record<TopicPriority, BadgeTone> = {
+const PRIORITY_TONE: Record<Priority, BadgeTone> = {
   low: "neutral",
   normal: "light",
   high: "dark",
 };
 
-export function TopicsScreen({ topics, availableSessions, onBack, onChange }: TopicsScreenProps) {
-  const [editing, setEditing] = useState<PlanTopic | null>(null);
+/** Taught and dropped topics are history: they cannot be edited or moved. */
+const isLocked = (topic: Topic) => topic.status === "completed" || topic.status === "dropped";
 
-  const remaining = topics.filter((t) => t.status !== "done");
+export function TopicsScreen({ topics, classesLeft, needsReplan, busy, onBack, onSave, onSwap, onRebuild }: TopicsScreenProps) {
+  const [editing, setEditing] = useState<Topic | null>(null);
+
+  const remaining = topics.filter((t) => !isLocked(t));
   const neededSessions = remaining.reduce((sum, t) => sum + t.sessions_needed, 0);
   const minimumSessions = remaining.reduce((sum, t) => sum + t.min_sessions, 0);
 
-  // Taught topics are locked in place, and nothing can move above them.
   const canMove = (index: number, delta: number) => {
     const target = index + delta;
-    return target >= 0 && target < topics.length && topics[index].status !== "done" && topics[target].status !== "done";
+    return !busy && target >= 0 && target < topics.length && !isLocked(topics[index]) && !isLocked(topics[target]);
   };
 
-  const move = (index: number, delta: number) => {
-    if (!canMove(index, delta)) return;
-    const next = [...topics];
-    [next[index], next[index + delta]] = [next[index + delta], next[index]];
-    onChange(next.map((t, i) => ({ ...t, order_no: i + 1 })));
-  };
-
-  const saveTopic = (updated: PlanTopic) => {
-    onChange(topics.map((t) => (t.id === updated.id ? updated : t)));
-    setEditing(null);
+  const saveTopic = async (edit: TopicEdit) => {
+    if (editing && (await onSave(editing, edit))) setEditing(null);
   };
 
   return (
@@ -54,52 +55,76 @@ export function TopicsScreen({ topics, availableSessions, onBack, onChange }: To
           Order sets the plan. Tap a topic to change how many classes it needs.
         </Text>
 
+        {needsReplan && (
+          <View className="flex-row items-center bg-[#DFE6FB] rounded-3xl px-4 py-3.5 mb-4">
+            <Feather name="refresh-cw" size={16} color="#0F172A" />
+            <Text className="font-outfit-medium text-sm text-black ml-3 flex-1">
+              Your changes affect the timetable.
+            </Text>
+            <Pressable onPress={onRebuild} disabled={busy} className="bg-black rounded-full px-4 py-2">
+              {busy ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text className="font-outfit-semibold text-xs text-white">Rebuild plan</Text>
+              )}
+            </Pressable>
+          </View>
+        )}
+
         <View className="flex-row bg-white rounded-[28px] p-4 mb-5">
-          <Stat label="Classes left" value={availableSessions} />
-          <Stat label="Topics need" value={neededSessions} warn={neededSessions > availableSessions} />
-          <Stat label="At minimum" value={minimumSessions} warn={minimumSessions > availableSessions} />
+          <Stat label="Classes left" value={classesLeft} />
+          <Stat label="Topics need" value={neededSessions} warn={neededSessions > classesLeft} />
+          <Stat label="At minimum" value={minimumSessions} warn={minimumSessions > classesLeft} />
         </View>
 
         {topics.map((topic, index) => {
-          const isDone = topic.status === "done";
+          const locked = isLocked(topic);
           return (
             <Pressable
               key={topic.id}
-              onPress={() => !isDone && setEditing(topic)}
+              onPress={() => !locked && !busy && setEditing(topic)}
               className={`flex-row items-center rounded-3xl p-4 mb-3 ${
-                isDone ? "bg-slate-100 border border-slate-200" : "bg-white border border-slate-100 active:opacity-80"
+                locked ? "bg-slate-100 border border-slate-200" : "bg-white border border-slate-100 active:opacity-80"
               }`}
             >
-              <View
-                className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${isDone ? "bg-slate-200" : "bg-black"}`}
-              >
-                <Text className={`font-outfit-bold text-sm ${isDone ? "text-slate-500" : "text-white"}`}>
-                  {topic.order_no}
-                </Text>
+              <View className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${locked ? "bg-slate-200" : "bg-black"}`}>
+                <Text className={`font-outfit-bold text-sm ${locked ? "text-slate-500" : "text-white"}`}>{topic.order_no}</Text>
               </View>
 
               <View className="flex-1 mr-2">
-                <Text className={`font-outfit-semibold text-base ${isDone ? "text-slate-500" : "text-black"}`}>
+                <Text
+                  className={`font-outfit-semibold text-base ${locked ? "text-slate-500" : "text-black"} ${
+                    topic.status === "dropped" ? "line-through" : ""
+                  }`}
+                >
                   {topic.title}
                 </Text>
                 <View className="flex-row items-center flex-wrap gap-2 mt-1.5">
                   <Text className="font-outfit text-xs text-slate-500">
                     {topic.sessions_needed} {topic.sessions_needed === 1 ? "class" : "classes"} · min {topic.min_sessions}
                   </Text>
-                  {isDone ? (
+                  {topic.status === "completed" ? (
                     <StatusBadge label="Taught" tone="success" />
+                  ) : topic.status === "dropped" ? (
+                    <StatusBadge label="Dropped" tone="danger" />
                   ) : (
-                    <StatusBadge label={`${topic.priority[0].toUpperCase()}${topic.priority.slice(1)} priority`} tone={PRIORITY_TONE[topic.priority]} />
+                    <>
+                      <StatusBadge
+                        label={`${topic.priority[0].toUpperCase()}${topic.priority.slice(1)} priority`}
+                        tone={PRIORITY_TONE[topic.priority]}
+                      />
+                      {topic.status === "in_progress" && <StatusBadge label="In progress" tone="warning" />}
+                    </>
                   )}
                 </View>
               </View>
 
-              {isDone ? (
+              {locked ? (
                 <Feather name="lock" size={16} color="#94A3B8" />
               ) : (
                 <View className="gap-1">
-                  <MoveButton icon="chevron-up" enabled={canMove(index, -1)} onPress={() => move(index, -1)} />
-                  <MoveButton icon="chevron-down" enabled={canMove(index, 1)} onPress={() => move(index, 1)} />
+                  <MoveButton icon="chevron-up" enabled={canMove(index, -1)} onPress={() => onSwap(topic, topics[index - 1])} />
+                  <MoveButton icon="chevron-down" enabled={canMove(index, 1)} onPress={() => onSwap(topic, topics[index + 1])} />
                 </View>
               )}
             </Pressable>
@@ -107,7 +132,7 @@ export function TopicsScreen({ topics, availableSessions, onBack, onChange }: To
         })}
       </ScrollView>
 
-      <EditTopicSheet key={editing?.id} topic={editing} onClose={() => setEditing(null)} onSave={saveTopic} />
+      <EditTopicSheet key={editing?.id} topic={editing} busy={busy} onClose={() => setEditing(null)} onSave={saveTopic} />
     </View>
   );
 }
@@ -121,15 +146,7 @@ function Stat({ label, value, warn = false }: { label: string; value: number; wa
   );
 }
 
-function MoveButton({
-  icon,
-  enabled,
-  onPress,
-}: {
-  icon: keyof typeof Feather.glyphMap;
-  enabled: boolean;
-  onPress: () => void;
-}) {
+function MoveButton({ icon, enabled, onPress }: { icon: keyof typeof Feather.glyphMap; enabled: boolean; onPress: () => void }) {
   return (
     <Pressable
       onPress={onPress}

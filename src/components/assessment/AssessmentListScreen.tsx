@@ -1,44 +1,54 @@
-import { AssessmentCard } from "@/components/assessment/AssessmentCard";
-import { AssessmentFilter, AssessmentStatusTabs } from "@/components/assessment/AssessmentStatusTabs";
-import { AssessmentItem } from "@/types/assessment";
-import { useTabBarInset } from "@/utils/tab-bar";
 import { Feather } from "@expo/vector-icons";
-import { useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { useState } from "react";
+import { Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
+
+import type { AssessmentListItem, Topic } from "@/api/types";
+import { AssessmentCard } from "@/components/assessment/AssessmentCard";
+import { AssessmentStatusTabs, type AssessmentFilter } from "@/components/assessment/AssessmentStatusTabs";
+import { assessmentStatus, type AssessmentStatus } from "@/utils/assessment";
+import { useTabBarInset } from "@/utils/tab-bar";
 
 interface AssessmentListScreenProps {
-  assessments: AssessmentItem[];
+  courseLabel: string;
+  semester: string | null;
+  assessments: AssessmentListItem[];
+  topics: Topic[];
+  refreshing: boolean;
+  onRefresh: () => void;
   onOpenCreate: () => void;
   onOpenAssessment: (id: string) => void;
-  onEditAssessment: (id: string) => void;
+  onOpenResults: () => void;
 }
 
-const FILTER_STATUS: Record<AssessmentFilter, AssessmentItem["status"][]> = {
-  Upcoming: ["scheduled", "marks-not-entered"],
+const FILTER_STATUS: Record<AssessmentFilter, AssessmentStatus[]> = {
+  Upcoming: ["scheduled", "needs-marks"],
   Completed: ["graded"],
-  "Not started": ["draft"],
+  "Not scheduled": ["unscheduled"],
 };
 
 export function AssessmentListScreen({
+  courseLabel,
+  semester,
   assessments,
+  topics,
+  refreshing,
+  onRefresh,
   onOpenCreate,
   onOpenAssessment,
-  onEditAssessment,
+  onOpenResults,
 }: AssessmentListScreenProps) {
   const tabBarInset = useTabBarInset();
   const [filter, setFilter] = useState<AssessmentFilter>("Upcoming");
 
-  const counts = useMemo(
-    () => ({
-      upcoming: assessments.filter((a) => a.status === "scheduled" || a.status === "marks-not-entered").length,
-      completed: assessments.filter((a) => a.status === "graded").length,
-      notStarted: assessments.filter((a) => a.status === "draft").length,
-      draft: assessments.filter((a) => a.status === "draft").length,
-    }),
-    [assessments]
-  );
+  const withStatus = assessments.map((item) => ({ item, status: assessmentStatus(item) }));
+  const counts = {
+    Upcoming: withStatus.filter((a) => FILTER_STATUS.Upcoming.includes(a.status)).length,
+    Completed: withStatus.filter((a) => FILTER_STATUS.Completed.includes(a.status)).length,
+    "Not scheduled": withStatus.filter((a) => FILTER_STATUS["Not scheduled"].includes(a.status)).length,
+  };
+  const visible = withStatus.filter((a) => FILTER_STATUS[filter].includes(a.status));
 
-  const visibleAssessments = assessments.filter((a) => FILTER_STATUS[filter].includes(a.status));
+  const topicTitle = new Map(topics.map((t) => [Number(t.id), t.title]));
 
   return (
     <View className="flex-1 bg-[var(--color-accent)]">
@@ -46,41 +56,41 @@ export function AssessmentListScreen({
         contentContainerClassName="px-5 pt-2"
         contentContainerStyle={{ paddingBottom: tabBarInset + 52 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         <View className="flex-row items-center justify-between mb-4">
           <View className="bg-[var(--color-primary)] rounded-full px-4 py-1.5">
-            <Text className="font-outfit-medium text-xs text-[var(--primary-font)]/65">Fall 2024</Text>
+            <Text className="font-outfit-medium text-xs text-[var(--primary-font)]/65">{semester ?? "This semester"}</Text>
           </View>
-          <Pressable
-            onPress={() =>
-              Alert.alert("Course menu", "Course settings, switch course and archive options will live here.")
-            }
-            className="w-9 h-9 rounded-full bg-[var(--color-primary)] items-center justify-center"
-          >
-            <Feather name="menu" size={18} color="#0F172A" />
+          <Pressable onPress={onOpenResults} className="flex-row items-center bg-[var(--color-primary)] rounded-full px-4 py-2">
+            <Feather name="bar-chart-2" size={14} color="#0F172A" />
+            <Text className="font-outfit-semibold text-xs text-[var(--primary-font)] ml-1.5">Results & grades</Text>
           </Pressable>
         </View>
 
         <Text className="font-outfit-bold text-[28px] text-[var(--primary-font)] mb-1">Assessments</Text>
         <Text className="font-outfit text-sm text-[var(--primary-font)]/55 mb-4">
-          Database Systems CS-301 · {assessments.length} Total Assessments
+          {courseLabel} · {assessments.length} Total Assessments
         </Text>
 
         <View className="mb-5">
           <AssessmentStatusTabs value={filter} onChange={setFilter} counts={counts} />
         </View>
 
-        {visibleAssessments.length === 0 ? (
+        {visible.length === 0 ? (
           <View className="items-center py-16">
-            <Text className="font-outfit-medium text-[var(--primary-font)]/40">Nothing here yet</Text>
+            <Text className="font-outfit-medium text-[var(--primary-font)]/40">
+              {assessments.length === 0 ? "No assessments yet. Tap + to create one." : "Nothing here yet"}
+            </Text>
           </View>
         ) : (
-          visibleAssessments.map((item) => (
+          visible.map(({ item, status }) => (
             <AssessmentCard
               key={item.id}
               item={item}
+              status={status}
+              topicTitles={item.topic_ids.map((id) => topicTitle.get(id)).filter((t): t is string => !!t)}
               onPress={() => onOpenAssessment(item.id)}
-              onEdit={() => onEditAssessment(item.id)}
             />
           ))
         )}

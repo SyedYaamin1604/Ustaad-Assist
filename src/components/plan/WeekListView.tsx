@@ -1,17 +1,17 @@
-import { SessionCard } from "@/components/plan/SessionCard";
-import { PlanSession } from "@/types/plan";
-import { groupByWeek } from "@/utils/plan";
 import { Text, View } from "react-native";
+
+import { SessionCard } from "@/components/plan/SessionCard";
+import type { PlanSession } from "@/utils/plan";
+import { groupByWeek } from "@/utils/plan";
 
 interface WeekListViewProps {
   sessions: PlanSession[];
   currentWeek: number;
-  classSize: number;
   highlightId?: string;
   onOpenSession: (id: string) => void;
 }
 
-export function WeekListView({ sessions, currentWeek, classSize, highlightId, onOpenSession }: WeekListViewProps) {
+export function WeekListView({ sessions, currentWeek, highlightId, onOpenSession }: WeekListViewProps) {
   return (
     <View>
       {groupByWeek(sessions).map((week) => {
@@ -38,7 +38,6 @@ export function WeekListView({ sessions, currentWeek, classSize, highlightId, on
               <SessionCard
                 key={session.id}
                 session={session}
-                classSize={classSize}
                 highlighted={session.id === highlightId}
                 onPress={() => onOpenSession(session.id)}
               />

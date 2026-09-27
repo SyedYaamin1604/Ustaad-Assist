@@ -1,86 +1,79 @@
-import { MaterialCategoryGrid } from "@/components/material/MaterialCategoryGrid";
+import { Feather } from "@expo/vector-icons";
+import { useMemo, useState } from "react";
+import { Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
+
+import type { Material, MaterialFolder } from "@/api/types";
+import { MaterialFolderGrid } from "@/components/material/MaterialFolderGrid";
 import { MaterialHomeHeader } from "@/components/material/MaterialHomeHeader";
-import { MaterialOfflineStorageCard } from "@/components/material/MaterialOfflineStorageCard";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { SegmentedPills } from "@/components/ui/SegmentedPills";
-import { fetchAllMaterials, fetchMaterialCategories } from "@/services/materialService";
-import { MaterialCategoryKey, MaterialCategoryMeta, MaterialFile } from "@/types/material";
-import { useEffect, useMemo, useState } from "react";
-import { Alert, ScrollView, View } from "react-native";
+import type { MaterialFileType } from "@/types/material";
+import { materialFileType } from "@/utils/material";
+import { useTabBarInset } from "@/utils/tab-bar";
 
 interface MaterialHomeScreenProps {
-  courseId: string;
-  refreshToken?: number;
-  onOpenCategory: (key: MaterialCategoryKey) => void;
+  courseCode: string;
+  courseName: string;
+  semester: string | null;
+  materials: Material[];
+  folders: MaterialFolder[];
+  refreshing: boolean;
+  onRefresh: () => void;
+  onOpenFolder: (folder: MaterialFolder) => void;
+  onOpenUpload: () => void;
 }
 
-export function MaterialHomeScreen({ courseId, refreshToken = 0, onOpenCategory }: MaterialHomeScreenProps) {
-  const [categories, setCategories] = useState<MaterialCategoryMeta[]>([]);
-  const [allFiles, setAllFiles] = useState<MaterialFile[]>([]);
-  const [isLoading, setLoading] = useState(true);
+const TYPE_FILTERS: { label: string; type: MaterialFileType | null }[] = [
+  { label: "All Files", type: null },
+  { label: "PDFs", type: "pdf" },
+  { label: "Slides", type: "pptx" },
+  { label: "Docs", type: "docx" },
+];
+
+export function MaterialHomeScreen({
+  courseCode,
+  courseName,
+  semester,
+  materials,
+  folders,
+  refreshing,
+  onRefresh,
+  onOpenFolder,
+  onOpenUpload,
+}: MaterialHomeScreenProps) {
+  const tabBarInset = useTabBarInset();
   const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("All Files");
+  const [typeFilter, setTypeFilter] = useState<MaterialFileType | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    // Only show the loading state on the very first load — a refreshToken bump
-    // (e.g. after an upload) should update the grid silently, not blank it out.
-    if (categories.length === 0) setLoading(true);
-    Promise.all([fetchMaterialCategories(courseId), fetchAllMaterials()]).then(([cats, files]) => {
-      if (cancelled) return;
-      setCategories(cats);
-      setAllFiles(files);
-      setLoading(false);
+  const options = TYPE_FILTERS.map((f) =>
+    f.type === null ? f.label : `${f.label} (${materials.filter((m) => materialFileType(m) === f.type).length})`,
+  );
+  const activeLabel = options[TYPE_FILTERS.findIndex((f) => f.type === typeFilter)];
+
+  // A folder shows if its name matches, or any file inside it does, and it holds the chosen file type.
+  const visibleFolders = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return folders.filter((folder) => {
+      const matchesSearch =
+        !q || folder.topic_title.toLowerCase().includes(q) || folder.materials.some((m) => m.title.toLowerCase().includes(q));
+      const matchesType = !typeFilter || folder.materials.some((m) => materialFileType(m) === typeFilter);
+      return matchesSearch && matchesType;
     });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [courseId, refreshToken]);
-
-  const totalFiles = categories.reduce((sum, c) => sum + c.fileCount, 0);
-
-  const filterOptions = useMemo(() => {
-    const pdfCount = allFiles.filter((f) => f.fileType === "pdf").length;
-    const slideCount = allFiles.filter((f) => f.fileType === "pptx").length;
-    const zipCount = allFiles.filter((f) => f.fileType === "zip").length;
-    return ["All Files", `PDFs (${pdfCount})`, `Slides (${slideCount})`, `Zips (${zipCount})`];
-  }, [allFiles]);
-
-  const visibleCategories = useMemo(() => {
-    let result = categories;
-
-    if (search.trim().length > 0) {
-      const q = search.trim().toLowerCase();
-      result = result.filter((c) => c.label.toLowerCase().includes(q));
-    }
-
-    const activeType = typeFilter.startsWith("PDFs")
-      ? "pdf"
-      : typeFilter.startsWith("Slides")
-        ? "pptx"
-        : typeFilter.startsWith("Zips")
-          ? "zip"
-          : null;
-
-    if (activeType) {
-      const categoriesWithType = new Set(allFiles.filter((f) => f.fileType === activeType).map((f) => f.categoryKey));
-      result = result.filter((c) => categoriesWithType.has(c.key));
-    }
-
-    return result;
-  }, [categories, search, typeFilter, allFiles]);
+  }, [folders, search, typeFilter]);
 
   return (
     <View className="flex-1 bg-[var(--color-accent)]">
-      <ScrollView contentContainerClassName="px-5 pt-2 pb-32" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerClassName="px-5 pt-2"
+        contentContainerStyle={{ paddingBottom: tabBarInset + 80 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <MaterialHomeHeader
-          courseCode="CS-301"
-          semesterLabel="Semester VI"
+          courseCode={courseCode}
+          semesterLabel={semester}
           courseTitle="Course Material"
-          subtitle={`Database Systems CS-301 · ${totalFiles} Files`}
-          onOpenFilters={() => Alert.alert("Filters", "Advanced filters (date range, size, uploader) aren't built yet — use the chips below for now.")}
-          onOpenMenu={() => Alert.alert("Course menu", "Export material list, storage settings and archive options will live here.")}
+          subtitle={`${courseName} · ${materials.length} Files`}
         />
 
         <View className="mb-4">
@@ -88,20 +81,32 @@ export function MaterialHomeScreen({ courseId, refreshToken = 0, onOpenCategory 
         </View>
 
         <View className="mb-1">
-          <SegmentedPills options={filterOptions} value={typeFilter} onChange={setTypeFilter} />
+          <SegmentedPills
+            options={options}
+            value={activeLabel}
+            onChange={(label) => setTypeFilter(TYPE_FILTERS[options.indexOf(label)]?.type ?? null)}
+          />
         </View>
 
-        <MaterialCategoryGrid
-          categories={visibleCategories}
-          emptyLabel={isLoading ? "Loading material..." : "No categories match your search/filter."}
-          onSelectCategory={(category) => onOpenCategory(category.key)}
-        />
-
-        <MaterialOfflineStorageCard
-          usedLabel="645 MB of 2 GB cached"
-          onManage={() => Alert.alert("Offline storage", "Managing cached files will be available once local caching is implemented.")}
+        <MaterialFolderGrid
+          folders={visibleFolders}
+          emptyLabel={
+            materials.length === 0
+              ? "No material yet. Upload slides or notes and link them to a topic."
+              : "No folders match your search or filter."
+          }
+          onSelectFolder={onOpenFolder}
         />
       </ScrollView>
+
+      <Pressable
+        onPress={onOpenUpload}
+        style={{ bottom: tabBarInset + 16, elevation: 6 }}
+        className="absolute right-5 flex-row items-center bg-[var(--color-secondary)] rounded-full pl-4 pr-5 py-3.5 shadow-lg"
+      >
+        <Feather name="plus" size={16} color="#fff" />
+        <Text className="font-outfit-semibold text-[13px] text-[var(--secondary-font)] ml-2">Upload file</Text>
+      </Pressable>
     </View>
   );
 }

@@ -1,27 +1,23 @@
 import React from "react";
 import { View } from "react-native";
-import { GraduationCap, TrendingUp, Users, ClipboardCheck } from "lucide-react-native";
+import { ClipboardCheck, GraduationCap, TrendingUp, Users } from "lucide-react-native";
+
+import type { Dashboard } from "@/api/types";
+import { formatPercent, plural } from "@/utils/format";
 import StatCard from "./StatCard";
 
-export interface StatsGridData {
-  classesCompleted: number;
-  classesTarget: number;
-  progressPercent: number;
-  topicsTotal: number;
-  attendancePercent: number;
-  studentsCount: number;
-  assessmentsDone: number;
-  assessmentsLabel: string;
-}
+/** The four headline numbers, straight from GET /courses/:id/dashboard. */
+export default function StatsGrid({ dashboard }: { dashboard: Dashboard }) {
+  const { schedule, topics, attendance, assessments } = dashboard;
+  const outstanding = assessments.marks_outstanding.length;
 
-export default function StatsGrid({ data }: { data: StatsGridData }) {
   return (
     <View className="mx-5 mt-4">
       <View className="flex-row" style={{ gap: 12 }}>
         <StatCard
           label="Classes"
-          value={`${data.classesCompleted} of ${data.classesTarget}`}
-          caption="Target for Month"
+          value={`${schedule.conducted} of ${schedule.planned_up_to_today}`}
+          caption={`Due so far · ${schedule.total_sessions} in plan`}
           icon={GraduationCap}
           bgColor="#2E9E86"
           textColor="#0B3B31"
@@ -29,8 +25,8 @@ export default function StatsGrid({ data }: { data: StatsGridData }) {
         />
         <StatCard
           label="Progress"
-          value={`${data.progressPercent}%`}
-          caption={`${data.topicsTotal} topics total`}
+          value={`${schedule.syllabus_percent}%`}
+          caption={`${topics.completed} of ${plural(topics.total, "topic")} done`}
           icon={TrendingUp}
           bgColor="#F0C64A"
           textColor="#4A3A08"
@@ -41,8 +37,12 @@ export default function StatsGrid({ data }: { data: StatsGridData }) {
       <View className="mt-3 flex-row" style={{ gap: 12 }}>
         <StatCard
           label="Attendance"
-          value={`${data.attendancePercent}%`}
-          caption={`Avg across ${data.studentsCount} students`}
+          value={formatPercent(attendance.class_average)}
+          caption={
+            attendance.below_threshold_count > 0
+              ? `${attendance.below_threshold_count} of ${attendance.student_count} below threshold`
+              : `Avg across ${plural(attendance.student_count, "student")}`
+          }
           icon={Users}
           bgColor="#E88098"
           textColor="#4A0E1E"
@@ -50,8 +50,8 @@ export default function StatsGrid({ data }: { data: StatsGridData }) {
         />
         <StatCard
           label="Assessments"
-          value={`${data.assessmentsDone} done`}
-          caption={data.assessmentsLabel}
+          value={`${assessments.upcoming.length} upcoming`}
+          caption={outstanding > 0 ? `${outstanding} need marks` : "All marks entered"}
           icon={ClipboardCheck}
           bgColor="#8FB4E8"
           textColor="#0F2E52"

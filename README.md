@@ -1,8 +1,9 @@
-# Welcome to your Expo app 👋
+# UstaadAssist — mobile app
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+The React Native (Expo SDK 57) app for UstaadAssist. It talks to the Express
+backend for everything, and to Supabase for sign-in and file storage only.
 
-## Get started
+## Setup
 
 1. Install dependencies
 
@@ -10,47 +11,83 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Create `.env.local` from the template and fill it in
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   | Variable | What it is |
+   |---|---|
+   | `EXPO_PUBLIC_API_URL` | The backend, e.g. `https://<app>.vercel.app`. On a physical phone use your computer's LAN IP, not `localhost`. |
+   | `EXPO_PUBLIC_SUPABASE_URL` | Supabase project URL |
+   | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase **anon** key (never the service role key) |
+   | `EXPO_PUBLIC_SUPABASE_STORAGE_BUCKET` | Storage bucket for uploads (default `materials`) |
+   | `EXPO_PUBLIC_DEMO_TODAY` | Optional. Pretend today is this date, to demo the seeded semester (`2026-11-18`) |
+
+3. In Supabase
+   - **Storage:** create a **private** bucket named as above, then run the backend's
+     `migrations/003_security.sql` (Supabase → SQL Editor → paste → Run). It adds the storage policies —
+     each teacher may only upload, read and delete inside a folder named after their own user id, which is
+     how the app builds every path (`<user id>/<course id>/…`) — and turns on row level security for
+     every table so the public anon key cannot reach the database directly.
+   - **Google sign-in (optional):** enable the Google provider, add `ustaadassist://auth/callback` to the
+     allowed redirect URLs, and set `EXPO_PUBLIC_GOOGLE_SIGNIN=true`.
+
+4. Start the app
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+## How the code is organised
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+```
+src/
+  app/                  Routes only (Expo Router). Thin: load data, call the API, pick a screen.
+    (auth)/             signin, register, forgot-password — shown only while signed out
+    (app)/              everything else — shown only while signed in
+      (tabs)/           home, plan, students, assessment, material — inside one selected course
+      course/           new (setup wizard), clone
+      report/           the reports list and a report preview
+      attendance, settings, profile, dashboard (the course list)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+  api/                  The backend, one module per group of routes. types.ts mirrors the API exactly.
+    client.ts           Adds the Supabase token, unwraps { success, data, message }, throws ApiError.
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+  providers/            AuthProvider (Supabase session + GET /auth/me), CourseProvider (selected course)
+  hooks/                useApi (load + reload + refetch on focus), useAction (buttons that call the API)
+  lib/                  config (env), supabase client, storage uploads, file pickers, report PDF
+  components/<feature>/ Presentational screens and pieces, grouped by feature
+  utils/                Small pure helpers: dates, formatting, plan, roster review, assessment status
+  types/                UI-only types and theme tokens (API types live in api/types.ts)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+A request flows one way: **route → `api/*` → backend**. Components receive data
+as props and never call the API themselves.
 
-### Other setup steps
+## Rules the app follows from the backend
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- Ids are strings, dates are `YYYY-MM-DD`, field names are `snake_case` — exactly as the API sends them.
+- Files go to Supabase Storage first; only the storage path is sent to the API.
+- Extracted class lists are a draft: the review screen is mandatory before `POST /students/import`.
+- A mark that was never entered is `null`, not zero. "Absent" is a real zero.
+- Server sentences (`schedule.warning`, `move_reason`, assessment move reasons) are shown as-is.
+- Reports are rendered to PDF from the backend's report JSON — nothing is calculated in the app.
 
-## Learn more
+## Scanning class lists and outlines
 
-To learn more about developing your project with Expo, look at the following resources:
+The teacher photographs the printed sheet or uploads the department's PDF; the backend reads it
+(free: PDF text, or Tesseract OCR for photos) and the app shows the rows on the review screen.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- **The department's PDF is exact** and takes about a second.
+- **A photo takes up to ~30 seconds.** Straight, flat and well-lit photos read fully; rows the OCR is
+  unsure about come back with low confidence and are highlighted on the review screen.
+- Outline lengths ("Week 3-4: Normalization") are applied to the topics automatically when saved.
 
-## Join the community
+## Not available on the backend
 
-Join our community of developers creating universal apps.
+- `GET /courses/:id/reports/:type.pdf` returns 503, so the app draws the PDF itself from the JSON report.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+The teacher's name comes from the sign-up form: the backend reads it from the Supabase token on
+`GET /auth/me`, and it appears on every report.

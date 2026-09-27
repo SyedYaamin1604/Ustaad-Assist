@@ -43,6 +43,13 @@
             "./assets/fonts/Outfit-Bold.ttf"
           ]
         }
+      ],
+      "expo-sharing",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "UstaadAssist uses the camera to photograph your printed class list."
+        }
       ]
     ],
     "experiments": {

@@ -1,3 +1,6 @@
+import type { DayName } from "@/api/types";
+import { config } from "@/lib/config";
+
 export const WEEKDAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 
 export const MONTH_NAMES = [
@@ -25,23 +28,6 @@ export function firstWeekdayOfMonth(year: number, monthIndex: number): number {
 
 export function isSameDay(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
-
-export function formatDateTime(date: Date): string {
-  const weekday = date.toLocaleDateString("en-US", { weekday: "short" });
-  const day = date.getDate();
-  const month = date.toLocaleDateString("en-US", { month: "short" });
-  const year = date.getFullYear();
-  return `${weekday} ${day} ${month}, ${year} · ${formatTime(date)}`;
-}
-
-export function formatTime(date: Date): string {
-  let hours = date.getHours();
-  const minutes = date.getMinutes();
-  const meridiem = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12 || 12;
-  const minuteStr = minutes.toString().padStart(2, "0");
-  return `${hours}:${minuteStr} ${meridiem}`;
 }
 
 export function to12Hour(hours24: number): { hour12: number; meridiem: "AM" | "PM" } {
@@ -90,9 +76,72 @@ export function addDays(date: Date, days: number): Date {
   return next;
 }
 
+/**
+ * Today as YYYY-MM-DD. Honours EXPO_PUBLIC_DEMO_TODAY so the app and the
+ * backend agree on "today" while demonstrating a seeded semester.
+ */
+export function todayISO(): string {
+  return config.demoToday ?? toISODate(new Date());
+}
+
+export function today(): Date {
+  return parseISODate(todayISO());
+}
+
+/** A real timestamp (e.g. material.uploaded_at) as the local calendar date, YYYY-MM-DD. */
+export function localDateOf(timestamp: string): string {
+  return toISODate(new Date(timestamp));
+}
+
+// "22 Sep"
+export function formatDayMonth(iso: string): string {
+  const d = parseISODate(iso);
+  return `${d.getDate()} ${shortMonth(d)}`;
+}
+
+// "22 Sep 2026"
+export function formatFullDate(iso: string): string {
+  const d = parseISODate(iso);
+  return `${d.getDate()} ${shortMonth(d)} ${d.getFullYear()}`;
+}
+
+// "Tuesday 22 September"
+export function formatLongDate(date: Date): string {
+  const weekday = date.toLocaleDateString("en-US", { weekday: "long" });
+  return `${weekday} ${date.getDate()} ${MONTH_NAMES[date.getMonth()]}`;
+}
+
+/** The backend's day names, in calendar order starting Monday. */
+export const DAY_NAMES: DayName[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+
+const DAY_LABEL: Record<DayName, string> = {
+  mon: "Mon",
+  tue: "Tue",
+  wed: "Wed",
+  thu: "Thu",
+  fri: "Fri",
+  sat: "Sat",
+  sun: "Sun",
+};
+
+export function dayLabel(day: DayName): string {
+  return DAY_LABEL[day];
+}
+
+// ["tue", "fri"] -> "Tue, Fri", always in week order
+export function classDaysLabel(days: DayName[]): string {
+  return DAY_NAMES.filter((d) => days.includes(d)).map(dayLabel).join(", ");
+}
+
+/** Whole weeks between two YYYY-MM-DD dates, rounded up. */
+export function weeksBetween(startIso: string, endIso: string): number {
+  const days = (parseISODate(endIso).getTime() - parseISODate(startIso).getTime()) / 86_400_000;
+  return Math.max(1, Math.ceil((days + 1) / 7));
+}
+
 // "Today", "Tomorrow", "In 3 days", "2 days ago"
-export function relativeDayLabel(date: Date, today: Date = new Date()): string {
-  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+export function relativeDayLabel(date: Date, reference: Date = today()): string {
+  const start = new Date(reference.getFullYear(), reference.getMonth(), reference.getDate());
   const diff = Math.round((date.getTime() - start.getTime()) / 86_400_000);
   if (diff === 0) return "Today";
   if (diff === 1) return "Tomorrow";
