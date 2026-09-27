@@ -35,10 +35,10 @@ export default function Profile() {
         />
 
         <View className="mt-8">
-          <Text className="text-4xl font-extrabold text-gray-900">
+          <Text className="text-4xl font-outfit-bold text-gray-900">
             More & Settings
           </Text>
-          <Text className="text-base text-gray-500 mt-2">
+          <Text className="font-outfit text-base text-gray-500 mt-2">
             Configure workspace, rosters, and teaching tools
           </Text>
         </View>

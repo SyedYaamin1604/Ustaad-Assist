@@ -18,7 +18,7 @@ const StatsRow = ({ courses }: StatsRowProps) => {
             <View className="flex-1 p-4 bg-[var(--color-primary)] rounded-2xl border border-[var(--color-secondary)]/20 shadow-sm">
                 <Ionicons name="layers-outline" size={24} color="#2563eb" />
                 <Text className="text-2xl font-outfit-bold text-[var(--primary-font)]/90 mt-2">{total}</Text>
-                <Text className="text-xs text-[var(--primary/font)]/50 mt-0.5">Active Modules</Text>
+                <Text className="font-outfit text-xs text-[var(--primary/font)]/50 mt-0.5">Active Modules</Text>
             </View>
 
             <View className=" flex-1 p-4 bg-[var(--color-secondary)] rounded-2xl border border-[var(--color-secondary)]/20 shadow-sm">
@@ -26,7 +26,7 @@ const StatsRow = ({ courses }: StatsRowProps) => {
                 <Text className="text-2xl font-outfit-bold text-[var(--primary-font)]/90 mt-2">
                     {completionRate}%
                 </Text>
-                <Text className="text-xs text-[var(--primary-font)]/50 mt-0.5">On Track</Text>
+                <Text className="font-outfit text-xs text-[var(--primary-font)]/50 mt-0.5">On Track</Text>
             </View>
         </View>
     );

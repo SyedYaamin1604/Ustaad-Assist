@@ -78,7 +78,7 @@ export default function ThresholdSlider({
                 marginBottom: 4,
               }}
             >
-              <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700' }}>
+              <Text className="font-outfit-bold" style={{ color: '#FFFFFF', fontSize: 11 }}>
                 {value}%
               </Text>
             </View>
@@ -102,11 +102,8 @@ export default function ThresholdSlider({
         {scaleLabels.map((label) => (
           <Text
             key={label}
-            className="text-[11px]"
-            style={{
-              color: label === value ? '#111318' : '#B7BAC6',
-              fontWeight: label === value ? '700' : '400',
-            }}
+            className={`text-[11px] ${label === value ? 'font-outfit-bold' : 'font-outfit'}`}
+            style={{ color: label === value ? '#111318' : '#B7BAC6' }}
           >
             {label}%
           </Text>

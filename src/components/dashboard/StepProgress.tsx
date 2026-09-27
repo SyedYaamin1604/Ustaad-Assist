@@ -9,7 +9,7 @@ const StepProgress = ({
 }) => {
   return (
     <View className="flex-row items-center gap-2">
-      <Text className="text-xs font-medium text-slate-500">
+      <Text className="text-xs font-outfit-medium text-slate-500">
         Step {current} of {total}
       </Text>
       <View className="flex-row gap-1">

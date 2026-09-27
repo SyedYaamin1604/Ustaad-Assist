@@ -28,7 +28,7 @@ export default function StatCard({
     >
       <View className="flex-row items-center justify-between">
         <Text
-          className="text-[13px] font-medium"
+          className="text-[13px] font-outfit-medium"
           style={{ color: textColor }}
         >
           {label}
@@ -42,13 +42,13 @@ export default function StatCard({
       </View>
 
       <Text
-        className="mt-3 text-[26px] font-bold"
+        className="mt-3 text-[26px] font-outfit-bold"
         style={{ color: textColor }}
       >
         {value}
       </Text>
       <Text
-        className="mt-0.5 text-[12px]"
+        className="font-outfit mt-0.5 text-[12px]"
         style={{ color: textColor, opacity: 0.75 }}
       >
         {caption}

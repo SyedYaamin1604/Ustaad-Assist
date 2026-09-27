@@ -10,10 +10,10 @@ export function DownloadRecordCard({ onPress }: DownloadRecordCardProps) {
   return (
     <View className="mt-6 flex-row items-center justify-between rounded-2xl bg-emerald-500 px-5 py-4">
       <View className="pr-3">
-        <Text className="text-base font-bold text-white">
+        <Text className="text-base font-outfit-bold text-white">
           Need official record?
         </Text>
-        <Text className="mt-0.5 text-xs font-medium text-white/80">
+        <Text className="mt-0.5 text-xs font-outfit-medium text-white/80">
           Download signed PDF roster
         </Text>
       </View>

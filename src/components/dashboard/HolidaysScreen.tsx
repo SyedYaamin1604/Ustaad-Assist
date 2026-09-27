@@ -32,8 +32,8 @@ const HolidaysScreen = ({
         <StepProgress current={3} total={3} />
       </View>
 
-      <Text className="mb-1 text-2xl font-bold text-slate-900">Holidays</Text>
-      <Text className="mb-6 text-sm text-slate-500">
+      <Text className="mb-1 text-2xl font-outfit-bold text-slate-900">Holidays</Text>
+      <Text className="font-outfit mb-6 text-sm text-slate-500">
         Official university holidays. Toggle to skip classes on these dates.
       </Text>
 
@@ -41,12 +41,12 @@ const HolidaysScreen = ({
         {holidays.map((h) => (
           <View key={h.id} className="flex-row items-center gap-3 border-b border-slate-100 p-4">
             <View className="h-11 w-11 items-center justify-center rounded-full bg-slate-100">
-              <Text className="text-xs font-semibold">{h.day}</Text>
-              <Text className="text-[10px] uppercase text-slate-400">{h.month}</Text>
+              <Text className="text-xs font-outfit-semibold">{h.day}</Text>
+              <Text className="font-outfit text-[10px] uppercase text-slate-400">{h.month}</Text>
             </View>
             <View className="flex-1">
-              <Text className="font-semibold text-slate-900">{h.title}</Text>
-              <Text className="text-xs text-slate-400">{h.note}</Text>
+              <Text className="font-outfit-semibold text-slate-900">{h.title}</Text>
+              <Text className="font-outfit text-xs text-slate-400">{h.note}</Text>
             </View>
             <Switch value={h.skipClasses} onValueChange={() => onToggle(h.id)} />
           </View>
@@ -57,11 +57,11 @@ const HolidaysScreen = ({
         onPress={onAddCustom}
         className="mb-6 items-center rounded-full bg-white py-3.5"
       >
-        <Text className="font-semibold text-slate-900">+ Add custom holiday</Text>
+        <Text className="font-outfit-semibold text-slate-900">+ Add custom holiday</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={onGenerate} className="items-center rounded-full bg-slate-900 py-4">
-        <Text className="font-semibold text-white" onPress={()=>router.push("/(tabs)/Home")}>Generate my plan →</Text>
+        <Text className="font-outfit-semibold text-white" onPress={()=>router.push("/(tabs)/Home")}>Generate my plan →</Text>
       </TouchableOpacity>
     </ScrollView>
   );

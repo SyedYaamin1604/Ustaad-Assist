@@ -50,17 +50,17 @@ export function CourseSettingsCard({
             <SlidersHorizontal size={18} color="#FFFFFF" />
           </View>
           <View className="flex-1">
-            <Text className="text-base font-semibold text-gray-900">
+            <Text className="text-base font-outfit-semibold text-gray-900">
               {courseName}
             </Text>
-            <Text className="text-sm text-gray-500 mt-0.5">
+            <Text className="font-outfit text-sm text-gray-500 mt-0.5">
               {semesterLabel}
             </Text>
           </View>
         </View>
 
         <View className="rounded-full bg-gray-100 px-3 py-1.5">
-          <Text className="text-xs font-semibold text-gray-700">
+          <Text className="text-xs font-outfit-semibold text-gray-700">
             {statusLabel}
           </Text>
         </View>
@@ -69,10 +69,10 @@ export function CourseSettingsCard({
       <View className="h-px bg-gray-100 my-5" />
 
       {/* Attendance threshold */}
-      <Text className="text-base font-semibold text-gray-900">
+      <Text className="text-base font-outfit-semibold text-gray-900">
         Attendance Warning Threshold
       </Text>
-      <Text className="text-sm text-gray-500 mt-1 leading-5">
+      <Text className="font-outfit text-sm text-gray-500 mt-1 leading-5">
         Students below this threshold are flagged for exam ineligibility.
       </Text>
 
@@ -89,10 +89,10 @@ export function CourseSettingsCard({
       {/* Auto-sync toggle */}
       <View className="flex-row items-center justify-between">
         <View className="flex-1 pr-4">
-          <Text className="text-base font-semibold text-gray-900">
+          <Text className="text-base font-outfit-semibold text-gray-900">
             Auto-sync semester calendar
           </Text>
-          <Text className="text-sm text-gray-500 mt-0.5">
+          <Text className="font-outfit text-sm text-gray-500 mt-0.5">
             Update schedule from university portal
           </Text>
         </View>

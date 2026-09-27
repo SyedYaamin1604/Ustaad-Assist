@@ -37,12 +37,12 @@ const CloneCourseScreen = ({ onBack, onComplete }: CloneCourseScreenProps) => {
         </TouchableOpacity>
       </View>
 
-      <Text className="mb-1 text-2xl font-bold text-slate-900">Clone a course</Text>
-      <Text className="mb-6 text-sm text-slate-500">
+      <Text className="mb-1 text-2xl font-outfit-bold text-slate-900">Clone a course</Text>
+      <Text className="font-outfit mb-6 text-sm text-slate-500">
         Duplicate syllabus, weightage & pacing to a new cohort
       </Text>
 
-      <Text className="mb-3 font-semibold text-slate-900">Select source course</Text>
+      <Text className="mb-3 font-outfit-semibold text-slate-900">Select source course</Text>
       <View className="mb-6 gap-3 ">
         {SOURCE_COURSES.map((course) => {
           const selected = form.sourceCourseId === course.id;
@@ -53,24 +53,24 @@ const CloneCourseScreen = ({ onBack, onComplete }: CloneCourseScreenProps) => {
               className={`rounded-2xl px-5 py-7 ${course.bg} ${selected ? "border-2 border-slate-900" : ""
                 }`}
             >
-              <Text className="self-start mb-2 text-[10px] font-semibold uppercase bg-[var(--color-primary)] w-30 px-2 py-1 rounded-lg text-[var(--font-secondary)]/90">
+              <Text className="self-start mb-2 text-[10px] font-outfit-semibold uppercase bg-[var(--color-primary)] w-30 px-2 py-1 rounded-lg text-[var(--font-secondary)]/90">
                 {course.badge}
               </Text>
-              <Text className="text-lg font-bold text-[var(--font-secondary)]">{course.title}</Text>
-              <Text className="text-sm text-[var(--font-secondary)]/90">{course.meta}</Text>
+              <Text className="text-lg font-outfit-bold text-[var(--font-secondary)]">{course.title}</Text>
+              <Text className="font-outfit text-sm text-[var(--font-secondary)]/90">{course.meta}</Text>
             </TouchableOpacity>
           );
         })}
       </View>
 
       <View className="mb-6 rounded-2xl bg-white px-5 py-7">
-        <Text className="font-semibold text-slate-900">What gets copied</Text>
+        <Text className="font-outfit-semibold text-slate-900">What gets copied</Text>
         <Text className="mb-2 font-outfit text-slate-500">Choose elements to carry forward into the clone</Text>
 
         <View className="flex-row items-center justify-between py-2">
           <View className="flex-column items-start justify-start">
-            <Text className="text-[14px] mb-1 font-semibold text-slate-800">Topics and priorities</Text>
-            <Text className="text-[12px] font-semibold text-slate-400">9 topics, delivery pacing order</Text>
+            <Text className="text-[14px] mb-1 font-outfit-semibold text-slate-800">Topics and priorities</Text>
+            <Text className="text-[12px] font-outfit-semibold text-slate-400">9 topics, delivery pacing order</Text>
           </View>
           <Switch
             value={form.copyOptions.topicsAndPriorities}
@@ -80,10 +80,10 @@ const CloneCourseScreen = ({ onBack, onComplete }: CloneCourseScreenProps) => {
         <View className="flex-row items-center justify-between py-2">
           <View className="flex-column items-start justify-start">
 
-            <Text className="text-[14px] font-semibold text-slate-800">
+            <Text className="text-[14px] font-outfit-semibold text-slate-800">
               Weightage & grading scheme
             </Text>
-            <Text className="text-[12px] font-semibold text-slate-400">
+            <Text className="text-[12px] font-outfit-semibold text-slate-400">
               Quizzes 10%, Mid 30%, etc.
             </Text>
           </View>
@@ -94,8 +94,8 @@ const CloneCourseScreen = ({ onBack, onComplete }: CloneCourseScreenProps) => {
         </View>
         <View className="flex-row items-center justify-between py-2">
           <View className="flex-column items-start justify-start">
-            <Text className="text-[14px] font-semibold text-slate-800">Assessment structure</Text>
-            <Text className="text-[12px] font-semibold text-slate-400">Draft quizzes & assignment milestones</Text>
+            <Text className="text-[14px] font-outfit-semibold text-slate-800">Assessment structure</Text>
+            <Text className="text-[12px] font-outfit-semibold text-slate-400">Draft quizzes & assignment milestones</Text>
           </View>
           <Switch
             value={form.copyOptions.assessmentStructure}
@@ -105,11 +105,12 @@ const CloneCourseScreen = ({ onBack, onComplete }: CloneCourseScreenProps) => {
       </View>
 
       <View className="mb-6 rounded-2xl bg-white p-6">
-        <Text className="mb-3 text-xl font-semibold text-[var(--font-secondary)]">New semester schedule</Text>
+        <Text className="mb-3 text-xl font-outfit-semibold text-[var(--font-secondary)]">New semester schedule</Text>
         <View className="mb-3 flex-row gap-3">
           <View className="flex-1 rounded-xl bg-slate-50 p-3">
-            <Text className="mb-1 text-[10px] uppercase text-slate-400">Start date</Text>
+            <Text className="font-outfit mb-1 text-[10px] uppercase text-slate-400">Start date</Text>
             <TextInput
+              className="font-outfit"
               value={form.details.startDate}
               onChangeText={(t) =>
                 setForm((f) => ({ ...f, details: { ...f.details, startDate: t } }))
@@ -117,8 +118,9 @@ const CloneCourseScreen = ({ onBack, onComplete }: CloneCourseScreenProps) => {
             />
           </View>
           <View className="flex-1 rounded-xl bg-slate-50 p-3">
-            <Text className="mb-1 text-[10px] uppercase text-slate-400">End date</Text>
+            <Text className="font-outfit mb-1 text-[10px] uppercase text-slate-400">End date</Text>
             <TextInput
+              className="font-outfit"
               value={form.details.endDate}
               onChangeText={(t) =>
                 setForm((f) => ({ ...f, details: { ...f.details, endDate: t } }))
@@ -126,7 +128,7 @@ const CloneCourseScreen = ({ onBack, onComplete }: CloneCourseScreenProps) => {
             />
           </View>
         </View>
-        <Text className="mb-2 text-[10px] uppercase text-slate-400">Recurring class days</Text>
+        <Text className="font-outfit mb-2 text-[10px] uppercase text-slate-400">Recurring class days</Text>
         <DayPicker
           days={form.details.classDays}
           setDays={(classDays) =>
@@ -140,7 +142,7 @@ const CloneCourseScreen = ({ onBack, onComplete }: CloneCourseScreenProps) => {
         disabled={!form.sourceCourseId}
         className="items-center rounded-full bg-slate-900 py-4"
       >
-        <Text className="font-semibold text-white">Clone and generate plan →</Text>
+        <Text className="font-outfit-semibold text-white">Clone and generate plan →</Text>
       </TouchableOpacity>
     </ScrollView>
   );

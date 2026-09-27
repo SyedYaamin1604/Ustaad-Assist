@@ -117,7 +117,7 @@ export function ThresholdSlider({
             elevation: 3,
           }}
         >
-          <Text className="text-white text-xs font-bold">
+          <Text className="text-white text-xs font-outfit-bold">
             {formatBubble(value)}
           </Text>
         </View>
@@ -129,7 +129,7 @@ export function ThresholdSlider({
             key={tick.value}
             className={
               tick.value === value
-                ? "text-black text-xs font-semibold"
+                ? "text-black text-xs font-outfit-semibold"
                 : "text-gray-400 text-xs"
             }
           >

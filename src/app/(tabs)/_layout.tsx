@@ -61,17 +61,19 @@ export default function TabsLayout() {
                     style={{
                         position: "absolute",
                         bottom: insets.bottom + TAB_BAR_BOTTOM_GAP,
-                        left: 40,
-                        right: 40,
+                        alignSelf: "center",       // size to content, don't stretch edge-to-edge
+                        flexDirection: "row",
                         justifyContent: "center",
                         alignItems: "center",
+                        gap: 4,                     // consistent spacing regardless of active label width
                         backgroundColor: "#FFFFFF",
                         borderRadius: 9999,
-                        padding: 8,
-                        elevation: 6,
+                        paddingHorizontal: 10,
+                        paddingVertical: 8,
+                        elevation: 8,               // bump above Android content so cards can't bleed through
                         shadowColor: "#000",
-                        shadowOpacity: 0.1,
-                        shadowRadius: 10,
+                        shadowOpacity: 0.12,
+                        shadowRadius: 12,
                         shadowOffset: { width: 0, height: 4 },
                     }}
                 >

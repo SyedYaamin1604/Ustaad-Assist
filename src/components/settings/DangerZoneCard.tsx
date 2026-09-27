@@ -20,13 +20,13 @@ export default function DangerZoneCard({ onDeletePress }: DangerZoneCardProps) {
       >
         <Trash2 size={18} color="#DC2626" />
       </View>
-      <Text className="text-[15px] font-bold mb-1" style={{ color: '#DC2626' }}>
+      <Text className="text-[15px] font-outfit-bold mb-1" style={{ color: '#DC2626' }}>
         Delete course and all data
       </Text>
-      <Text className="text-[12px] font-semibold mb-2" style={{ color: '#E06A63' }}>
+      <Text className="text-[12px] font-outfit-semibold mb-2" style={{ color: '#E06A63' }}>
         This action is irreversible
       </Text>
-      <Text className="text-[11.5px] text-center leading-[16px]" style={{ color: '#C98F8B' }}>
+      <Text className="font-outfit text-[11.5px] text-center leading-[16px]" style={{ color: '#C98F8B' }}>
         Student records, attendance entries, and grade thresholds will be purged permanently.
       </Text>
     </Pressable>

@@ -19,13 +19,13 @@ export function LectureInfoCard({ lecture, onPress }: LectureInfoCardProps) {
           <GraduationCap size={18} color="#4338CA" />
         </View>
         <View>
-          <Text className="text-sm font-bold text-neutral-900">
+          <Text className="text-sm font-outfit-bold text-neutral-900">
             {lecture.label}
           </Text>
           <View className="mt-0.5 flex-row items-center gap-1">
-            <Text className="text-xs text-neutral-400">{lecture.topic}</Text>
+            <Text className="font-outfit text-xs text-neutral-400">{lecture.topic}</Text>
             <Clock size={11} color="#a3a3a3" />
-            <Text className="text-xs text-neutral-400">{lecture.time}</Text>
+            <Text className="font-outfit text-xs text-neutral-400">{lecture.time}</Text>
           </View>
         </View>
       </View>

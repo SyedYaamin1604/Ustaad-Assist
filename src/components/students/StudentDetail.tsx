@@ -27,7 +27,7 @@ export default function StudentDetail({ student, onBack }: StudentDetailProps) {
         >
           <ArrowLeft size={18} color="#111827" />
         </TouchableOpacity>
-        <Text className="ml-4 text-base font-semibold text-gray-500">Student Profile</Text>
+        <Text className="ml-4 text-base font-outfit-semibold text-gray-500">Student Profile</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: tabBarInset + 24 }} showsVerticalScrollIndicator={false}>
@@ -37,26 +37,26 @@ export default function StudentDetail({ student, onBack }: StudentDetailProps) {
             className="h-14 w-14 items-center justify-center rounded-full"
             style={{ backgroundColor: student.avatarBg }}
           >
-            <Text className="text-lg font-bold" style={{ color: student.avatarText }}>
+            <Text className="text-lg font-outfit-bold" style={{ color: student.avatarText }}>
               {student.initials}
             </Text>
           </View>
-          <Text className="mt-3 text-xl font-bold text-gray-900">{student.name}</Text>
-          <Text className="mt-1 text-sm text-gray-400">
+          <Text className="mt-3 text-xl font-outfit-bold text-gray-900">{student.name}</Text>
+          <Text className="font-outfit mt-1 text-sm text-gray-400">
             Roll {student.rollNumber} · {student.courseName} {student.courseCode}
           </Text>
         </View>
 
         {/* Attendance */}
-        <Text className="mb-2 mt-6 text-xs font-semibold tracking-wide text-gray-400">
+        <Text className="mb-2 mt-6 text-xs font-outfit-semibold tracking-wide text-gray-400">
           ATTENDANCE (ALERT THRESHOLD)
         </Text>
         <View className="rounded-3xl bg-white p-4 shadow-sm">
           <View className="flex-row items-end justify-between">
-            <Text className="text-4xl font-extrabold" style={{ color: accent }}>
+            <Text className="text-4xl font-outfit-bold" style={{ color: accent }}>
               {student.attendancePercentage.toFixed(1)}%
             </Text>
-            <Text className="mb-1 text-xs text-gray-400">
+            <Text className="font-outfit mb-1 text-xs text-gray-400">
               {student.lecturesAttended} of {student.totalLectures} lectures attended
             </Text>
           </View>
@@ -82,7 +82,7 @@ export default function StudentDetail({ student, onBack }: StudentDetailProps) {
         </View>
 
         {/* Assessment marks */}
-        <Text className="mb-2 mt-6 text-xs font-semibold tracking-wide text-gray-400">
+        <Text className="mb-2 mt-6 text-xs font-outfit-semibold tracking-wide text-gray-400">
           ASSESSMENT MARKS
         </Text>
         {student.assessments.map((mark) => (

@@ -47,10 +47,10 @@ export function ProfileHeader({
         </View>
 
         <View className="ml-3 flex-shrink">
-          <Text className="text-base font-semibold text-gray-900" numberOfLines={1}>
+          <Text className="text-base font-outfit-semibold text-gray-900" numberOfLines={1}>
             {name}
           </Text>
-          <Text className="text-sm text-gray-500 mt-0.5" numberOfLines={1}>
+          <Text className="font-outfit text-sm text-gray-500 mt-0.5" numberOfLines={1}>
             {role}
           </Text>
         </View>

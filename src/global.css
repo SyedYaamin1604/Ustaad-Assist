@@ -20,3 +20,12 @@
   --primary-font: #000;
   --secondary-font: #fff;
 }
+/* Default typography. Native has no CSS inheritance from a root element, so
+   every <Text>/<TextInput> also carries an explicit font-outfit-* class; this
+   rule covers web-rendered markup outside react-native-web's Text. */
+@layer base {
+  html,
+  body {
+    @apply font-outfit;
+  }
+}

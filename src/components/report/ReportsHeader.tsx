@@ -23,7 +23,7 @@ export function ReportsHeader({
 
       <View className="flex-row items-center gap-2 rounded-full bg-white px-4 py-2">
         <View className="h-1.5 w-1.5 rounded-full bg-gray-900" />
-        <Text className="text-[13px] font-semibold text-gray-900">
+        <Text className="text-[13px] font-outfit-semibold text-gray-900">
           {courseLabel}
         </Text>
       </View>

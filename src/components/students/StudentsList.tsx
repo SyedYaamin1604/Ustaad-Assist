@@ -47,7 +47,7 @@ export default function StudentsList({
         </TouchableOpacity>
 
         <View className="rounded-full bg-white px-3 py-1.5 shadow-sm">
-          <Text className="text-xs font-semibold text-gray-600">
+          <Text className="text-xs font-outfit-semibold text-gray-600">
             {courseCode} · Section {section}
           </Text>
         </View>
@@ -60,8 +60,8 @@ export default function StudentsList({
         </TouchableOpacity>
       </View>
 
-      <Text className="mt-5 text-3xl font-extrabold text-gray-900">Students</Text>
-      <Text className="mt-1 text-sm text-gray-400">
+      <Text className="mt-5 text-3xl font-outfit-bold text-gray-900">Students</Text>
+      <Text className="font-outfit mt-1 text-sm text-gray-400">
         {courseName} {courseCode} · {students.length} Students
       </Text>
 
@@ -72,7 +72,7 @@ export default function StudentsList({
           onChangeText={setQuery}
           placeholder="Search by name or roll number..."
           placeholderTextColor="#9CA3AF"
-          className="ml-2 flex-1 text-sm text-gray-800"
+          className="font-outfit ml-2 flex-1 text-sm text-gray-800"
         />
       </View>
 
@@ -86,7 +86,7 @@ export default function StudentsList({
         ))}
 
         {filtered.length === 0 && (
-          <Text className="mt-8 text-center text-sm text-gray-400">
+          <Text className="font-outfit mt-8 text-center text-sm text-gray-400">
             No students match &quot;{query}&quot;.
           </Text>
         )}

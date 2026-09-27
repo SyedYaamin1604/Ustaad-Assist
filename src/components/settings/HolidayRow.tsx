@@ -27,8 +27,8 @@ export default function HolidayRow({ item, onToggle, showDivider = true }: Holid
           <Icon size={15} color="#111318" />
         </View>
         <View className="flex-1">
-          <Text className="text-[13.5px] font-bold text-[#0F1424]">{item.title}</Text>
-          <Text className="text-[11.5px] text-[#8A8F9C] mt-0.5">{item.subtitle}</Text>
+          <Text className="text-[13.5px] font-outfit-bold text-[#0F1424]">{item.title}</Text>
+          <Text className="font-outfit text-[11.5px] text-[#8A8F9C] mt-0.5">{item.subtitle}</Text>
         </View>
         <Toggle value={item.enabled} onValueChange={(v) => onToggle(item.id, v)} />
       </View>

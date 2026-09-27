@@ -30,19 +30,19 @@ export function StudentSummaryRow({ student }: StudentSummaryRowProps) {
           <View
             className={`h-10 w-10 items-center justify-center rounded-full ${student.avatarBg}`}
           >
-            <Text className={`text-xs font-bold ${student.avatarText}`}>
+            <Text className={`text-xs font-outfit-bold ${student.avatarText}`}>
               {student.initials}
             </Text>
           </View>
           <View>
-            <Text className="text-sm font-bold text-neutral-900">
+            <Text className="text-sm font-outfit-bold text-neutral-900">
               {student.name}
             </Text>
-            <Text className="text-xs text-neutral-400">Roll {student.rollNo}</Text>
+            <Text className="font-outfit text-xs text-neutral-400">Roll {student.rollNo}</Text>
           </View>
         </View>
 
-        <Text className={`text-lg font-extrabold ${text}`}>{pctLabel}</Text>
+        <Text className={`text-lg font-outfit-bold ${text}`}>{pctLabel}</Text>
       </View>
 
       <View className="mt-3 h-2 w-full overflow-hidden rounded-full bg-neutral-100">
@@ -52,7 +52,7 @@ export function StudentSummaryRow({ student }: StudentSummaryRowProps) {
         />
       </View>
 
-      <Text className="mt-1.5 text-right text-[11px] text-neutral-400">
+      <Text className="font-outfit mt-1.5 text-right text-[11px] text-neutral-400">
         {student.attended} of {student.totalLectures} attended
       </Text>
     </View>

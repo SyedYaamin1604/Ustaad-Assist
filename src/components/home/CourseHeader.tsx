@@ -25,12 +25,12 @@ export default function CourseHeader({
         hitSlop={8}
       >
         <View className="flex-row items-center">
-          <Text className="text-[22px] font-bold text-gray-900" numberOfLines={1}>
+          <Text className="text-[22px] font-outfit-bold text-gray-900" numberOfLines={1}>
             {courseName}
           </Text>
           <ChevronDown size={20} color="#111827" className="ml-1" />
         </View>
-        <Text className="mt-0.5 text-[13px] text-gray-500">{dateLabel}</Text>
+        <Text className="font-outfit mt-0.5 text-[13px] text-gray-500">{dateLabel}</Text>
       </Pressable>
 
       <Pressable

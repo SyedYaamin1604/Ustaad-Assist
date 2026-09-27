@@ -25,7 +25,7 @@ export function AttendanceReportCard({
     >
       <View className="flex-row items-center gap-1.5">
         <Clock size={13} color="#374151" />
-        <Text className="text-[12px] text-gray-700">
+        <Text className="font-outfit text-[12px] text-gray-700">
           {generatedLabel} · {studentCount} Students
         </Text>
       </View>
@@ -36,7 +36,7 @@ export function AttendanceReportCard({
           className="flex-1 flex-row items-center justify-center gap-2 rounded-full bg-gray-900 py-3.5 active:opacity-80"
         >
           <FileText size={16} color="#FFFFFF" />
-          <Text className="text-[14px] font-semibold text-white">Open</Text>
+          <Text className="text-[14px] font-outfit-semibold text-white">Open</Text>
         </Pressable>
 
         <Pressable
@@ -44,7 +44,7 @@ export function AttendanceReportCard({
           className="flex-1 flex-row items-center justify-center gap-2 rounded-full bg-white py-3.5 active:opacity-80"
         >
           <Share2 size={16} color="#111827" />
-          <Text className="text-[14px] font-semibold text-gray-900">
+          <Text className="text-[14px] font-outfit-semibold text-gray-900">
             Share
           </Text>
         </Pressable>

@@ -21,7 +21,7 @@ export function SearchBar({
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor="#a3a3a3"
-        className="flex-1 text-sm text-neutral-800"
+        className="font-outfit flex-1 text-sm text-neutral-800"
       />
     </View>
   );

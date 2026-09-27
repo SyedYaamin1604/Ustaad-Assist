@@ -10,10 +10,10 @@ interface TitleBlockProps {
 export function AttendanceTitleBlock({ title, subtitle }: TitleBlockProps) {
   return (
     <View className="px-5 pt-5">
-      <Text className="text-4xl font-extrabold tracking-tight text-neutral-900">
+      <Text className="text-4xl font-outfit-bold tracking-tight text-neutral-900">
         {title}
       </Text>
-      <Text className="mt-1 text-sm text-neutral-500">{subtitle}</Text>
+      <Text className="font-outfit mt-1 text-sm text-neutral-500">{subtitle}</Text>
     </View>
   );
 }
@@ -33,7 +33,7 @@ export function ViewToggle({ value, onChange }: ViewToggleProps) {
         }`}
       >
         <Text
-          className={`text-sm font-semibold ${
+          className={`text-sm font-outfit-semibold ${
             value === "mark" ? "text-white" : "text-neutral-500"
           }`}
         >
@@ -47,7 +47,7 @@ export function ViewToggle({ value, onChange }: ViewToggleProps) {
         }`}
       >
         <Text
-          className={`text-sm font-semibold ${
+          className={`text-sm font-outfit-semibold ${
             value === "summary" ? "text-white" : "text-neutral-500"
           }`}
         >
