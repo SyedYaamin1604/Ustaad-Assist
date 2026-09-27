@@ -1,0 +1,47 @@
+// components/ThresholdCard.tsx
+import React from 'react';
+import { View, Text } from 'react-native';
+import { AlertTriangle } from 'lucide-react-native';
+import ThresholdSlider from './ThresholdSlider';
+import Toggle from './Toggle';
+
+interface ThresholdCardProps {
+  threshold: number;
+  onThresholdChange: (value: number) => void;
+  autoNotify: boolean;
+  onAutoNotifyChange: (value: boolean) => void;
+}
+
+export default function ThresholdCard({
+  threshold,
+  onThresholdChange,
+  autoNotify,
+  onAutoNotifyChange,
+}: ThresholdCardProps) {
+  return (
+    <View className="bg-white rounded-3xl px-5 py-5 mx-5 mt-4">
+      <View className="flex-row items-center mb-1.5">
+        <AlertTriangle size={16} color="#0F1424" />
+        <Text className="text-[16px] font-bold text-[#0F1424] ml-2">
+          {threshold}% Threshold
+        </Text>
+      </View>
+      <Text className="text-[12px] text-[#8A8F9C] mb-8 leading-[17px]">
+        Students falling below this line are flagged for exam ineligibility.
+      </Text>
+
+      <ThresholdSlider
+        value={threshold}
+        min={50}
+        max={90}
+        onChange={onThresholdChange}
+        scaleLabels={[50, 65, 75, 90]}
+      />
+
+      <View className="flex-row items-center justify-between bg-[#F4F5FA] rounded-2xl px-4 py-3.5 mt-6">
+        <Text className="text-[13px] font-medium text-[#4B4F5C]">Auto-notify course coordinator</Text>
+        <Toggle value={autoNotify} onValueChange={onAutoNotifyChange} />
+      </View>
+    </View>
+  );
+}

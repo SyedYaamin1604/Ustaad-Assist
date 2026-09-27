@@ -1,11 +1,15 @@
-import { Text, View } from "react-native";
+import { useRouter } from "expo-router";
+import CourseCreationFlow from "../../components/dashboard/CourseCreationFlow";
 
 const NewCourse = () => {
-    return (
-        <View className="flex-1 bg-slate-50 p-6">
-            <Text className="text-2xl font-outfit-bold">New Course</Text>
-        </View>
-    );
-};
+  const router = useRouter();
+
+  return (
+    <CourseCreationFlow
+      visible
+      onClose={() => router.back()}
+    />
+  );
+}
 
 export default NewCourse;

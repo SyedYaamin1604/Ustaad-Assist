@@ -1,6 +1,7 @@
 import { AssessmentCard } from "@/components/assessment/AssessmentCard";
 import { AssessmentFilter, AssessmentStatusTabs } from "@/components/assessment/AssessmentStatusTabs";
 import { AssessmentItem } from "@/types/assessment";
+import { useTabBarInset } from "@/utils/tab-bar";
 import { Feather } from "@expo/vector-icons";
 import { useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, Text, View } from "react-native";
@@ -24,6 +25,7 @@ export function AssessmentListScreen({
   onOpenAssessment,
   onEditAssessment,
 }: AssessmentListScreenProps) {
+  const tabBarInset = useTabBarInset();
   const [filter, setFilter] = useState<AssessmentFilter>("Upcoming");
 
   const counts = useMemo(
@@ -40,7 +42,11 @@ export function AssessmentListScreen({
 
   return (
     <View className="flex-1 bg-[var(--color-accent)]">
-      <ScrollView contentContainerClassName="px-5 pt-2 pb-32" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerClassName="px-5 pt-2"
+        contentContainerStyle={{ paddingBottom: tabBarInset + 52 }}
+        showsVerticalScrollIndicator={false}
+      >
         <View className="flex-row items-center justify-between mb-4">
           <Pressable
             onPress={() => Alert.alert("Assessments", "This is the top of the Assessments tab — there's nowhere to go back to yet.")}
@@ -88,7 +94,8 @@ export function AssessmentListScreen({
 
       <Pressable
         onPress={onOpenCreate}
-        className="absolute bottom-28 right-5 w-14 h-14 rounded-full bg-black items-center justify-center shadow-lg"
+        style={{ bottom: tabBarInset + 36 }}
+        className="absolute right-5 w-14 h-14 rounded-full bg-black items-center justify-center shadow-lg"
       >
         <Feather name="plus" size={22} color="#fff" />
       </Pressable>

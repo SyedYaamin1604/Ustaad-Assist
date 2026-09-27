@@ -1,71 +1,87 @@
-import { useState } from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { forwardRef } from "react";
+import { Pressable, PressableProps, Text, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-
-// Screens Imports
-import Dashboard from "./dashboard";
-import Plan from "./plan";
-import Students from "./students";
-import Assessment from "./assessment";
-import Material from "./material";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { Tabs, TabList, TabTrigger, TabSlot } from "expo-router/ui";
+import type { Href } from "expo-router";
+import { TAB_BAR_BOTTOM_GAP } from "@/utils/tab-bar";
 
 type TabItem = {
-    key: string;
+    name: string;
+    href: Href;
     label: string;
     icon: keyof typeof Feather.glyphMap;
-    screen: React.ComponentType;
 };
 
+// `name` must match the route file name inside (tabs)
 const TABS: TabItem[] = [
-    { key: "dashboard", label: "Dashboard", icon: "home", screen: Dashboard },
-    { key: "plan", label: "Plan", icon: "calendar", screen: Plan },
-    { key: "students", label: "Students", icon: "users", screen: Students },
-    { key: "assessment", label: "Assessment", icon: "check-circle", screen: Assessment },
-    { key: "material", label: "Material", icon: "file-text", screen: Material },
+    { name: "Home", href: "/(tabs)/Home", label: "Dashboard", icon: "home" },
+    { name: "plan", href: "/(tabs)/plan", label: "Plan", icon: "calendar" },
+    { name: "students", href: "/(tabs)/students", label: "Students", icon: "users" },
+    { name: "assessment", href: "/(tabs)/assessment", label: "Assessment", icon: "check-circle" },
+    { name: "material", href: "/(tabs)/material", label: "Material", icon: "file-text" },
 ];
 
-export default function TabsLayout() {
-    const [activeTab, setActiveTab] = useState("dashboard");
+type TabButtonProps = PressableProps & {
+    isFocused?: boolean;
+    label: string;
+    icon: keyof typeof Feather.glyphMap;
+};
 
-    const ActiveScreen = TABS.find((tab) => tab.key === activeTab)!.screen;
+// TabTrigger (asChild) injects onPress and isFocused into this component
+const TabButton = forwardRef<View, TabButtonProps>(
+    ({ isFocused, label, icon, ...props }, ref) => (
+        <Pressable
+            ref={ref}
+            {...props}
+            className={`flex-row items-center rounded-full mx-0.5 py-2.5 ${isFocused ? "bg-black px-4" : "px-3"
+                }`}
+        >
+            <Feather name={icon} size={20} color={isFocused ? "#FFFFFF" : "#9CA3AF"} />
+            {isFocused && (
+                <Text className="text-white text-[13px] font-outfit-semibold ml-1.5">
+                    {label}
+                </Text>
+            )}
+        </Pressable>
+    )
+);
+TabButton.displayName = "TabButton";
+
+export default function TabsLayout() {
+    const insets = useSafeAreaInsets();
 
     return (
         <SafeAreaView className="flex-1" edges={["top"]}>
-            <View className="flex-1">
-                <ActiveScreen />
-            </View>
+            <Tabs style={{ flex: 1 }}>
+                <TabSlot />
 
-            <View className="absolute bottom-12 left-0 right-0 items-center mx-10">
-                <View
-                    className="flex-row justify-center items-center bg-white rounded-full py-2 px-2 w-full shadow-lg"
-                    style={{ elevation: 6 }}
+                {/* TabList must be a direct child of Tabs so the triggers get registered */}
+                <TabList
+                    style={{
+                        position: "absolute",
+                        bottom: insets.bottom + TAB_BAR_BOTTOM_GAP,
+                        left: 40,
+                        right: 40,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: "#FFFFFF",
+                        borderRadius: 9999,
+                        padding: 8,
+                        elevation: 6,
+                        shadowColor: "#000",
+                        shadowOpacity: 0.1,
+                        shadowRadius: 10,
+                        shadowOffset: { width: 0, height: 4 },
+                    }}
                 >
-                    {TABS.map((tab) => {
-                        const isActive = activeTab === tab.key;
-                        return (
-                            <TouchableOpacity
-                                key={tab.key}
-                                activeOpacity={0.7}
-                                onPress={() => setActiveTab(tab.key)}
-                                className={`flex-row items-center rounded-full mx-0.5 py-2.5 ${isActive ? "bg-black px-4" : "px-3"
-                                    }`}
-                            >
-                                <Feather
-                                    name={tab.icon}
-                                    size={20}
-                                    color={isActive ? "#FFFFFF" : "#9CA3AF"}
-                                />
-                                {isActive && (
-                                    <Text className="text-white text-[13px] font-outfit-semibold ml-1.5">
-                                        {tab.label}
-                                    </Text>
-                                )}
-                            </TouchableOpacity>
-                        );
-                    })}
-                </View>
-            </View>
+                    {TABS.map((tab) => (
+                        <TabTrigger key={tab.name} name={tab.name} href={tab.href} asChild>
+                            <TabButton label={tab.label} icon={tab.icon} />
+                        </TabTrigger>
+                    ))}
+                </TabList>
+            </Tabs>
         </SafeAreaView>
     );
 }
