@@ -1,7 +1,7 @@
 import { Redirect } from "expo-router";
 
 const TabsIndex = () => {
-    return <Redirect href="/(tabs)/dashboard" />;
+    return <Redirect href="/(tabs)/Home" />;
 }
 
 export default TabsIndex;

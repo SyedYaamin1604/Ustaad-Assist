@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { GradingCriteriaCard } from "@/components/assessment/GradingCriteriaCard";
 import { StudentGradeRow } from "@/components/assessment/StudentGradeRow";
 import { GradeRow, MOCK_GRADE_ROWS, MOCK_WEIGHTAGE } from "@/types/assessment";
+import { useTabBarInset } from "@/utils/tab-bar";
 
 interface ResultsGradesScreenProps {
   onBack: () => void;
@@ -37,6 +38,7 @@ function sortRows(rows: GradeRow[], sort: string): GradeRow[] {
 }
 
 export function ResultsGradesScreen({ onBack, onExport }: ResultsGradesScreenProps) {
+  const tabBarInset = useTabBarInset();
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState(SORT_OPTIONS[0]);
 
@@ -76,7 +78,11 @@ export function ResultsGradesScreen({ onBack, onExport }: ResultsGradesScreenPro
 
   return (
     <View className="flex-1 bg-[var(--color-accent)]">
-      <ScrollView contentContainerClassName="px-5 pt-2 pb-10" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerClassName="px-5 pt-2"
+        contentContainerStyle={{ paddingBottom: tabBarInset + 24 }}
+        showsVerticalScrollIndicator={false}
+      >
         <View className="flex-row items-center justify-between mb-4">
           <Pressable onPress={onBack} className="w-9 h-9 rounded-full bg-white items-center justify-center">
             <Feather name="chevron-left" size={18} color="#0F172A" />

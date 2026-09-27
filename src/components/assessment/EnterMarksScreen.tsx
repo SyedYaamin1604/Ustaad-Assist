@@ -5,6 +5,7 @@ import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { NumericKeypad } from "@/components/ui/NumericKeypad";
 import { MarkStatus, StudentMarkCard } from "@/components/assessment/StudentMarkCard";
 import { MOCK_STUDENTS } from "@/types/assessment";
+import { useTabBarInset } from "@/utils/tab-bar";
 
 interface EnterMarksScreenProps {
   onBack: () => void;
@@ -21,6 +22,7 @@ const TOTAL_STUDENTS = 60;
 const STARTING_INDEX = 23;
 
 export function EnterMarksScreen({ onBack, onDone }: EnterMarksScreenProps) {
+  const tabBarInset = useTabBarInset();
   const [studentIndex, setStudentIndex] = useState(0);
   const [entries, setEntries] = useState<Record<number, Entry>>({
     0: { score: "13.5", status: "entered" },
@@ -97,7 +99,11 @@ export function EnterMarksScreen({ onBack, onDone }: EnterMarksScreenProps) {
 
   return (
     <View className="flex-1 bg-[var(--color-accent)]">
-      <ScrollView contentContainerClassName="px-5 pt-2 pb-10" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerClassName="px-5 pt-2"
+        contentContainerStyle={{ paddingBottom: tabBarInset + 24 }}
+        showsVerticalScrollIndicator={false}
+      >
         <View className="flex-row items-center justify-between mb-1">
           <Pressable onPress={onBack} className="w-9 h-9 rounded-full bg-white items-center justify-center">
             <Feather name="chevron-left" size={18} color="#0F172A" />
