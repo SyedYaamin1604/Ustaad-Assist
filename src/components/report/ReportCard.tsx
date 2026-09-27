@@ -34,10 +34,10 @@ export function ReportCard({
           {badge}
         </View>
 
-        <Text className="mt-5 text-[24px] font-extrabold leading-7 text-gray-900">
+        <Text className="mt-5 text-[24px] font-outfit-bold leading-7 text-gray-900">
           {title}
         </Text>
-        <Text className="mt-2 text-[14px] leading-5 text-gray-900/70">
+        <Text className="font-outfit mt-2 text-[14px] leading-5 text-gray-900/70">
           {description}
         </Text>
 
@@ -61,7 +61,7 @@ export function ReportBadge({ label, dotColor }: ReportBadgeProps) {
           style={{ backgroundColor: dotColor }}
         />
       ) : null}
-      <Text className="text-[12px] font-semibold text-gray-900">{label}</Text>
+      <Text className="text-[12px] font-outfit-semibold text-gray-900">{label}</Text>
     </View>
   );
 }

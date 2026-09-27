@@ -22,11 +22,11 @@ export default function ThresholdCard({
     <View className="bg-white rounded-3xl px-5 py-5 mx-5 mt-4">
       <View className="flex-row items-center mb-1.5">
         <AlertTriangle size={16} color="#0F1424" />
-        <Text className="text-[16px] font-bold text-[#0F1424] ml-2">
+        <Text className="text-[16px] font-outfit-bold text-[#0F1424] ml-2">
           {threshold}% Threshold
         </Text>
       </View>
-      <Text className="text-[12px] text-[#8A8F9C] mb-8 leading-[17px]">
+      <Text className="font-outfit text-[12px] text-[#8A8F9C] mb-8 leading-[17px]">
         Students falling below this line are flagged for exam ineligibility.
       </Text>
 
@@ -39,7 +39,7 @@ export default function ThresholdCard({
       />
 
       <View className="flex-row items-center justify-between bg-[#F4F5FA] rounded-2xl px-4 py-3.5 mt-6">
-        <Text className="text-[13px] font-medium text-[#4B4F5C]">Auto-notify course coordinator</Text>
+        <Text className="text-[13px] font-outfit-medium text-[#4B4F5C]">Auto-notify course coordinator</Text>
         <Toggle value={autoNotify} onValueChange={onAutoNotifyChange} />
       </View>
     </View>

@@ -31,20 +31,20 @@ export default function CourseOverviewCard({
           <View className="w-6 h-6 rounded-full bg-[#111318] items-center justify-center mr-2">
             <GraduationCap size={13} color="#FFFFFF" />
           </View>
-          <Text className="text-[12px] font-semibold text-[#111318]">{cohortLabel}</Text>
+          <Text className="text-[12px] font-outfit-semibold text-[#111318]">{cohortLabel}</Text>
         </View>
 
         <Pressable onPress={onEditPress} className="flex-row items-center" hitSlop={8}>
-          <Text className="text-[13px] font-semibold text-[#111318] mr-1">Edit course info</Text>
+          <Text className="text-[13px] font-outfit-semibold text-[#111318] mr-1">Edit course info</Text>
           <Pencil size={13} color="#111318" />
         </Pressable>
       </View>
 
       {/* Row 2: course name + code, department/section */}
-      <Text className="text-[20px] font-bold text-[#0F1424] mb-1">
+      <Text className="text-[20px] font-outfit-bold text-[#0F1424] mb-1">
         {courseName} {courseCode}
       </Text>
-      <Text className="text-[13px] text-[#8A8F9C] mb-4">
+      <Text className="font-outfit text-[13px] text-[#8A8F9C] mb-4">
         {department} · Section {section}
       </Text>
 
@@ -54,8 +54,8 @@ export default function CourseOverviewCard({
           <Calendar size={16} color="#111318" />
         </View>
         <View>
-          <Text className="text-[13px] font-bold text-[#0F1424]">{dateRangeLabel}</Text>
-          <Text className="text-[11px] text-[#8A8F9C] mt-0.5">{durationLabel}</Text>
+          <Text className="text-[13px] font-outfit-bold text-[#0F1424]">{dateRangeLabel}</Text>
+          <Text className="font-outfit text-[11px] text-[#8A8F9C] mt-0.5">{durationLabel}</Text>
         </View>
       </View>
     </View>

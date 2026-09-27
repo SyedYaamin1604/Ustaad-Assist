@@ -17,14 +17,14 @@ export function SubmitBar({
 }: SubmitBarProps) {
   return (
     <View className="mx-5 mb-4 flex-row items-center justify-between rounded-full bg-black px-2 py-2 pl-5">
-      <Text className="text-xs font-medium text-white">
+      <Text className="text-xs font-outfit-medium text-white">
         {presentCount} Present · {leaveCount} Leave · {absentCount} Absent
       </Text>
       <Pressable
         onPress={onSubmit}
         className="flex-row items-center gap-1.5 rounded-full bg-white px-4 py-2.5"
       >
-        <Text className="text-xs font-bold text-neutral-900">
+        <Text className="text-xs font-outfit-bold text-neutral-900">
           Submit attendance
         </Text>
         <ArrowRight size={14} color="#171717" />

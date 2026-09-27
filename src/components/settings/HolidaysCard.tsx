@@ -14,12 +14,12 @@ export default function HolidaysCard({ items, onToggleItem, onAddDayOff }: Holid
   return (
     <View className="bg-white rounded-3xl px-5 py-5 mx-5 mt-4">
       <View className="flex-row items-center justify-between mb-1">
-        <Text className="text-[16px] font-bold text-[#0F1424]">Holidays &amp; Off Days</Text>
+        <Text className="text-[16px] font-outfit-bold text-[#0F1424]">Holidays &amp; Off Days</Text>
         <View className="bg-[#F4F5FA] rounded-full px-3 py-1.5">
-          <Text className="text-[11px] font-semibold text-[#111318]">{items.length} set</Text>
+          <Text className="text-[11px] font-outfit-semibold text-[#111318]">{items.length} set</Text>
         </View>
       </View>
-      <Text className="text-[12px] text-[#8A8F9C] mb-2">
+      <Text className="font-outfit text-[12px] text-[#8A8F9C] mb-2">
         Lectures falling on these dates get exempted.
       </Text>
 
@@ -41,11 +41,11 @@ export default function HolidaysCard({ items, onToggleItem, onAddDayOff }: Holid
       >
         <View className="flex-row items-center">
           <Plus size={14} color="#111318" />
-          <Text className="text-[13px] font-bold text-[#0F1424] ml-1.5">Add a day off</Text>
+          <Text className="text-[13px] font-outfit-bold text-[#0F1424] ml-1.5">Add a day off</Text>
         </View>
       </Pressable>
 
-      <Text className="text-[11px] text-[#B7BAC6] text-center mt-2.5">
+      <Text className="font-outfit text-[11px] text-[#B7BAC6] text-center mt-2.5">
         (for strikes, closures or unforeseen holidays)
       </Text>
     </View>

@@ -83,12 +83,12 @@ export function UploadMaterialModal({
           <View className="bg-[var(--color-primary)] rounded-t-[28px] px-5 pt-5 pb-8 max-h-[92%]">
             <View className="flex-row items-start justify-between mb-1">
               <View className="flex-1 mr-3">
-                <Text className="font-outfit-bold text-xl text-[var(--primary-font)]">Upload Material</Text>
-                <Text className="font-outfit text-[13px] text-[var(--primary-font)]/50 mt-1">
+                <Text className="font-outfit-bold text-2xl text-[var(--primary-font)]">Upload Material</Text>
+                <Text className="font-outfit text-[13px] text-slate-500 mt-1">
                   Add slides, assignments, notes or reference files
                 </Text>
               </View>
-              <Pressable onPress={onClose} className="w-9 h-9 rounded-full bg-[var(--primary-font)]/5 items-center justify-center">
+              <Pressable onPress={onClose} className="w-9 h-9 rounded-full bg-slate-200 items-center justify-center">
                 <Feather name="x" size={18} color="#0F172A" />
               </Pressable>
             </View>
@@ -153,7 +153,7 @@ export function UploadMaterialModal({
               </Text>
               <Pressable
                 onPress={() => setTopicPickerOpen(true)}
-                className="flex-row items-center justify-between bg-[var(--primary-font)]/5 rounded-2xl px-4 py-3.5"
+                className="flex-row items-center justify-between bg-[var(--primary-font)]/5 rounded-2xl px-5 py-6 bg-slate-300"
               >
                 <View className="flex-row items-center flex-1 mr-2">
                   <Feather name="tag" size={14} color="#0F172A" />
@@ -168,7 +168,7 @@ export function UploadMaterialModal({
               </Pressable>
 
               {/* Visibility toggle */}
-              <View className="flex-row items-center justify-between bg-[var(--primary-font)]/5 rounded-2xl px-4 py-3.5 mt-5">
+              <View className="flex-row items-center justify-between bg-[var(--primary-font)]/5 px-4 py-3.5 mt-5 bg-slate-300 rounded-2xl">
                 <View className="flex-row items-center flex-1 mr-3">
                   <Feather name="eye" size={16} color="#0F172A" />
                   <View className="ml-2.5 flex-1">
@@ -189,7 +189,7 @@ export function UploadMaterialModal({
                 />
               </View>
 
-              <View className="mt-6">
+              <View className="mt-6 border-2 border-[var(--color-secondary)] bg-slate-300 rounded-2xl text-[var(--secondary-font)]">
                 <PrimaryButton
                   label={isUploading ? "Uploading..." : "Upload material"}
                   onPress={handleUpload}

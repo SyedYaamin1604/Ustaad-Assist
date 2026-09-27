@@ -45,7 +45,7 @@ export function MenuListItem({
 
       <View className="flex-1">
         <Text
-          className="text-base font-semibold"
+          className="text-base font-outfit-semibold"
           style={{ color: titleColor }}
           numberOfLines={1}
         >
@@ -53,7 +53,7 @@ export function MenuListItem({
         </Text>
         {subtitle ? (
           <Text
-            className="text-sm mt-0.5"
+            className="font-outfit text-sm mt-0.5"
             style={{ color: subtitleColor }}
             numberOfLines={1}
           >

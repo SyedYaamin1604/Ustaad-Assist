@@ -35,20 +35,20 @@ export default function TodayClassCard({
     >
       {/* Badge */}
       <View className="self-start rounded-full bg-white/70 px-3.5 py-1.5">
-        <Text className="text-[11px] font-semibold tracking-wide text-gray-800">
+        <Text className="text-[11px] font-outfit-semibold tracking-wide text-gray-800">
           TODAY&apos;S CLASS · {timeRangeLabel}
         </Text>
       </View>
 
       {/* Title */}
-      <Text className="mt-3 text-[24px] font-bold leading-7 text-gray-900">
+      <Text className="mt-3 text-[24px] font-outfit-bold leading-7 text-gray-900">
         {topicTitle}
       </Text>
 
       {/* Location */}
       <View className="mt-1.5 flex-row items-center">
         <MapPin size={14} color="#57534E" />
-        <Text className="ml-1 text-[13px] text-gray-700">
+        <Text className="font-outfit ml-1 text-[13px] text-gray-700">
           {room} · {subject}
         </Text>
       </View>
@@ -62,7 +62,7 @@ export default function TodayClassCard({
           }`}
         >
           <Check size={16} color="#FFFFFF" />
-          <Text className="ml-1.5 text-[14px] font-semibold text-white">
+          <Text className="ml-1.5 text-[14px] font-outfit-semibold text-white">
             Conducted
           </Text>
         </Pressable>
@@ -72,7 +72,7 @@ export default function TodayClassCard({
           className="flex-row items-center rounded-full bg-white px-5 py-2.5"
         >
           <X size={16} color="#111827" />
-          <Text className="ml-1.5 text-[14px] font-semibold text-gray-900">
+          <Text className="ml-1.5 text-[14px] font-outfit-semibold text-gray-900">
             Cancelled
           </Text>
         </Pressable>

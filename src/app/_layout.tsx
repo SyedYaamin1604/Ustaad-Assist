@@ -1,8 +1,6 @@
 import "../global.css";
 import { Stack } from "expo-router";
-import { useEffect, useState } from "react";
-import { Platform } from "react-native";
-import * as NavigationBar from "expo-navigation-bar";
+import { useState } from "react";
 import { useFonts } from "expo-font";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -21,12 +19,6 @@ const RootLayout = () => {
   // in components/splash/theme.ts).
   const [splashDone, setSplashDone] = useState(false);
 
-  useEffect(() => {
-    if (Platform.OS === "android") {
-      NavigationBar.setVisibilityAsync("hidden");
-    }
-  }, []);
-
   // Fonts aren't loaded yet — keep this exactly as before so the native/
   // static splash (from app.json) stays up rather than flashing an
   // unstyled screen. Nothing renders here on purpose.
@@ -44,7 +36,15 @@ const RootLayout = () => {
 
   return (
     <SafeAreaProvider className="bg-none">
-      <Stack initialRouteName="signin" screenOptions={{ headerShown: true }}>
+      <Stack
+        initialRouteName="signin"
+        screenOptions={{
+          headerShown: true,
+          // Native headers aren't reachable by className, so map them to Outfit here.
+          headerTitleStyle: { fontFamily: "Outfit-SemiBold" },
+          headerBackTitleStyle: { fontFamily: "Outfit-Regular" },
+        }}
+      >
         <Stack.Screen name="index" />
         <Stack.Screen name="signin" options={{ title: "Sign In", headerShown: false }} />
         <Stack.Screen name="register" options={{ title: "Register", headerShown: false }} />

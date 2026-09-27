@@ -21,13 +21,13 @@ export default function StudentListItem({ student, onPress }: StudentListItemPro
           className="h-11 w-11 items-center justify-center rounded-full"
           style={{ backgroundColor: student.avatarBg }}
         >
-          <Text className="text-sm font-bold" style={{ color: student.avatarText }}>
+          <Text className="text-sm font-outfit-bold" style={{ color: student.avatarText }}>
             {student.initials}
           </Text>
         </View>
         <View className="ml-3">
-          <Text className="text-[15px] font-semibold text-gray-900">{student.name}</Text>
-          <Text className="mt-0.5 text-xs text-gray-400">Roll {student.rollNumber}</Text>
+          <Text className="text-[15px] font-outfit-semibold text-gray-900">{student.name}</Text>
+          <Text className="font-outfit mt-0.5 text-xs text-gray-400">Roll {student.rollNumber}</Text>
         </View>
       </View>
 
@@ -35,7 +35,7 @@ export default function StudentListItem({ student, onPress }: StudentListItemPro
         className={`rounded-full px-2.5 py-1 ${isHealthy ? 'bg-emerald-50' : 'bg-red-50'}`}
       >
         <Text
-          className={`text-xs font-bold ${isHealthy ? 'text-emerald-600' : 'text-red-500'}`}
+          className={`text-xs font-outfit-bold ${isHealthy ? 'text-emerald-600' : 'text-red-500'}`}
         >
           {student.attendancePercentage}%
         </Text>

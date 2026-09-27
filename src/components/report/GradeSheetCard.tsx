@@ -20,8 +20,8 @@ export function GradeSheetCard({ progress, statusLabel }: GradeSheetCardProps) {
     >
       <View className="rounded-2xl bg-white/60 p-4">
         <View className="flex-row items-center justify-between">
-          <Text className="text-[13px] text-gray-800">{statusLabel}</Text>
-          <Text className="text-[15px] font-bold text-gray-900">
+          <Text className="font-outfit text-[13px] text-gray-800">{statusLabel}</Text>
+          <Text className="text-[15px] font-outfit-bold text-gray-900">
             {clampedProgress}%
           </Text>
         </View>
@@ -35,7 +35,7 @@ export function GradeSheetCard({ progress, statusLabel }: GradeSheetCardProps) {
 
         <View className="mt-2 flex-row items-center justify-end gap-1.5">
           <RefreshCw size={12} color="#374151" />
-          <Text className="text-[12px] text-gray-700">Generating PDF...</Text>
+          <Text className="font-outfit text-[12px] text-gray-700">Generating PDF...</Text>
         </View>
       </View>
     </ReportCard>

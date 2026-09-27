@@ -27,10 +27,10 @@ export default function CourseSettingsHeader({
       </Pressable>
 
       <View className="flex-1 items-center px-2">
-        <Text className="text-[16px] font-bold text-[#0F1424]" numberOfLines={1}>
+        <Text className="text-[16px] font-outfit-bold text-[#0F1424]" numberOfLines={1}>
           {title}
         </Text>
-        <Text className="text-[12px] text-[#8A8F9C] mt-0.5" numberOfLines={1}>
+        <Text className="font-outfit text-[12px] text-[#8A8F9C] mt-0.5" numberOfLines={1}>
           {subtitle}
         </Text>
       </View>

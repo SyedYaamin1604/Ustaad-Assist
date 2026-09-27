@@ -44,16 +44,16 @@ export function StudentMarkRow({ student, onCycleStatus }: StudentMarkRowProps) 
         <View
           className={`h-10 w-10 items-center justify-center rounded-full ${student.avatarBg}`}
         >
-          <Text className={`text-xs font-bold ${student.avatarText}`}>
+          <Text className={`text-xs font-outfit-bold ${student.avatarText}`}>
             {student.initials}
           </Text>
         </View>
         <View>
-          <Text className="text-sm font-bold text-neutral-900">
+          <Text className="text-sm font-outfit-bold text-neutral-900">
             {student.name}
           </Text>
           <Text
-            className={`text-xs ${
+            className={`font-outfit text-xs ${
               student.status === "absent" ? "text-red-500" : "text-neutral-400"
             }`}
           >
@@ -70,7 +70,7 @@ export function StudentMarkRow({ student, onCycleStatus }: StudentMarkRowProps) 
         ) : (
           <X size={12} color={student.status === "absent" ? "#B91C1C" : "#6D28D9"} />
         )}
-        <Text className={`text-xs font-semibold ${config.pillText}`}>
+        <Text className={`text-xs font-outfit-semibold ${config.pillText}`}>
           {config.label}
         </Text>
       </View>

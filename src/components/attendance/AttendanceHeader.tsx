@@ -27,7 +27,7 @@ export function AttendanceHeader({
       </Pressable>
 
       <View className="rounded-full bg-white px-4 py-2 shadow-sm shadow-black/5">
-        <Text className="text-xs font-semibold text-neutral-800">
+        <Text className="text-xs font-outfit-semibold text-neutral-800">
           {courseLabel}
         </Text>
       </View>

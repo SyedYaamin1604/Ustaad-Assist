@@ -9,14 +9,14 @@ export default function AssessmentItem({ type, title, score, maxScore }: Assessm
       <View className="flex-row items-center">
         <View className={`rounded-md px-2 py-1 ${isQuiz ? 'bg-amber-100' : 'bg-indigo-100'}`}>
           <Text
-            className={`text-[11px] font-bold ${isQuiz ? 'text-amber-700' : 'text-indigo-600'}`}
+            className={`text-[11px] font-outfit-bold ${isQuiz ? 'text-amber-700' : 'text-indigo-600'}`}
           >
             {type}
           </Text>
         </View>
-        <Text className="ml-3 text-[15px] font-medium text-gray-800">{title}</Text>
+        <Text className="ml-3 text-[15px] font-outfit-medium text-gray-800">{title}</Text>
       </View>
-      <Text className="text-[15px] font-bold text-gray-900">
+      <Text className="text-[15px] font-outfit-bold text-gray-900">
         {score} / {maxScore}
       </Text>
     </View>

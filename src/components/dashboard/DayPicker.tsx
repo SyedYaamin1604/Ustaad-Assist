@@ -23,7 +23,7 @@ const DayPicker = ({
               active ? "bg-slate-900" : "bg-slate-100"
             }`}
           >
-            <Text className={active ? "text-white" : "text-slate-600"}>
+            <Text className={`font-outfit-medium ${active ? "text-white" : "text-slate-600"}`}>
               {d.label}
             </Text>
           </TouchableOpacity>

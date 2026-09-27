@@ -17,15 +17,15 @@ export default function WeekdayPill({ initial, label, active, onPress }: Weekday
         style={{ backgroundColor: active ? '#111318' : '#F0F1F6' }}
       >
         <Text
-          className="text-[13px] font-bold"
+          className="text-[13px] font-outfit-bold"
           style={{ color: active ? '#FFFFFF' : '#B7BAC6' }}
         >
           {initial}
         </Text>
       </View>
       <Text
-        className="text-[10px]"
-        style={{ color: active ? '#111318' : '#B7BAC6', fontWeight: active ? '700' : '400' }}
+        className={`text-[10px] ${active ? 'font-outfit-bold' : 'font-outfit'}`}
+        style={{ color: active ? '#111318' : '#B7BAC6' }}
       >
         {label}
       </Text>

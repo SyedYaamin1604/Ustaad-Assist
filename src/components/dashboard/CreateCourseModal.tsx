@@ -54,17 +54,17 @@ const CreateCourseModal = ({
           </View>
 
           <View className="mb-1 flex-row items-center justify-between">
-            <Text className="text-2xl font-bold text-slate-900">
+            <Text className="text-2xl font-outfit-bold text-slate-900">
               Create Course
             </Text>
             <TouchableOpacity
               onPress={onClose}
               className="h-9 w-9 items-center justify-center rounded-full bg-slate-100"
             >
-              <Text className="text-base text-slate-500">✕</Text>
+              <Text className="font-outfit text-base text-slate-500">✕</Text>
             </TouchableOpacity>
           </View>
-          <Text className="mb-6 text-sm text-slate-400">
+          <Text className="font-outfit mb-6 text-sm text-slate-400">
             Choose how you&apos;d like to start this course
           </Text>
 
@@ -81,18 +81,18 @@ const CreateCourseModal = ({
             }}
           >
             <View className="h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500">
-              <Text className="text-xl text-white">+</Text>
+              <Text className="font-outfit text-xl text-white">+</Text>
             </View>
             <View className="flex-1">
-              <Text className="mb-0.5 text-base font-semibold text-slate-900">
+              <Text className="mb-0.5 text-base font-outfit-semibold text-slate-900">
                 New course
               </Text>
-              <Text className="text-sm leading-5 text-slate-500">
+              <Text className="font-outfit text-sm leading-5 text-slate-500">
                 Set up syllabus, weekly topics, and class schedule from
                 scratch.
               </Text>
             </View>
-            <Text className="text-lg text-slate-300">›</Text>
+            <Text className="font-outfit text-lg text-slate-300">›</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -108,17 +108,17 @@ const CreateCourseModal = ({
             }}
           >
             <View className="h-12 w-12 items-center justify-center rounded-2xl bg-amber-400">
-              <Text className="text-xl">📄</Text>
+              <Text className="font-outfit text-xl">📄</Text>
             </View>
             <View className="flex-1">
-              <Text className="mb-0.5 text-base font-semibold text-slate-900">
+              <Text className="mb-0.5 text-base font-outfit-semibold text-slate-900">
                 Clone previous semester
               </Text>
-              <Text className="text-sm leading-5 text-slate-500">
+              <Text className="font-outfit text-sm leading-5 text-slate-500">
                 Import topics, lecture plans, and grading criteria.
               </Text>
             </View>
-            <Text className="text-lg text-slate-300">›</Text>
+            <Text className="font-outfit text-lg text-slate-300">›</Text>
           </TouchableOpacity>
 
           <View className="mt-auto">
@@ -126,7 +126,7 @@ const CreateCourseModal = ({
               onPress={onClose}
               className="items-center rounded-full bg-[var(--color-secondary)] py-4"
             >
-              <Text className="font-semibold text-[var(--secondary-font)]">Cancel</Text>
+              <Text className="font-outfit-semibold text-[var(--secondary-font)]">Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>

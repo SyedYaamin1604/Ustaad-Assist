@@ -46,7 +46,7 @@ function RosterIllustration() {
 
         <View className="absolute -bottom-4 flex-row items-center gap-1.5 rounded-full bg-white px-3 py-1.5 shadow-sm">
           <View className="h-2 w-2 rounded-full bg-emerald-500" />
-          <Text className="text-xs font-medium text-gray-600">Roster ready to sync</Text>
+          <Text className="text-xs font-outfit-medium text-gray-600">Roster ready to sync</Text>
         </View>
       </View>
     </View>
@@ -72,9 +72,9 @@ export default function EmptyRosterState({
         </TouchableOpacity>
 
         <View className="flex-row items-center gap-2">
-          <Text className="text-base font-semibold text-gray-900">Student Roster</Text>
+          <Text className="text-base font-outfit-semibold text-gray-900">Student Roster</Text>
           <View className="rounded-full bg-indigo-100 px-2.5 py-1">
-            <Text className="text-xs font-semibold text-indigo-600">{courseCode}</Text>
+            <Text className="text-xs font-outfit-semibold text-indigo-600">{courseCode}</Text>
           </View>
         </View>
 
@@ -87,16 +87,16 @@ export default function EmptyRosterState({
       <View className="flex-1 justify-center pb-10">
         <RosterIllustration />
 
-        <Text className="mt-8 text-center text-2xl font-bold leading-8 text-gray-900">
+        <Text className="mt-8 text-center text-2xl font-outfit-bold leading-8 text-gray-900">
           Capture your class list{'\n'}to start taking attendance
         </Text>
-        <Text className="mt-3 text-center text-sm leading-5 text-gray-500">
+        <Text className="font-outfit mt-3 text-center text-sm leading-5 text-gray-500">
           Photograph or upload the PDF the department sent, to start tracking attendance.
         </Text>
 
         <View className="mt-5 flex-row items-center self-center rounded-full border border-gray-200 bg-white px-3 py-1.5">
           <Info size={13} color="#6B7280" />
-          <Text className="ml-1.5 text-xs text-gray-500">
+          <Text className="font-outfit ml-1.5 text-xs text-gray-500">
             Supports Excel, CSV, or plain text roll numbers
           </Text>
         </View>
@@ -106,7 +106,7 @@ export default function EmptyRosterState({
           activeOpacity={0.85}
           className="mt-8 flex-row items-center justify-center rounded-full bg-gray-900 py-4"
         >
-          <Text className="mr-2 text-base font-semibold text-white">Capture Class List</Text>
+          <Text className="mr-2 text-base font-outfit-semibold text-white">Capture Class List</Text>
           <View className="h-6 w-6 items-center justify-center rounded-full bg-white/15">
             <ArrowRight size={14} color="#FFFFFF" />
           </View>
@@ -119,7 +119,7 @@ export default function EmptyRosterState({
             className="flex-1 flex-row items-center justify-center rounded-full border border-gray-200 bg-white py-3.5"
           >
             <FileUp size={16} color="#111827" />
-            <Text className="ml-2 text-sm font-semibold text-gray-900">Import file</Text>
+            <Text className="ml-2 text-sm font-outfit-semibold text-gray-900">Import file</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -128,13 +128,13 @@ export default function EmptyRosterState({
             className="flex-1 flex-row items-center justify-center rounded-full border border-gray-200 bg-white py-3.5"
           >
             <ClipboardList size={16} color="#111827" />
-            <Text className="ml-2 text-sm font-semibold text-gray-900">Paste list</Text>
+            <Text className="ml-2 text-sm font-outfit-semibold text-gray-900">Paste list</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity className="mt-4 flex-row items-center justify-center gap-1.5 self-center">
           <CheckCircle2 size={13} color="#9CA3AF" />
-          <Text className="text-xs font-medium text-gray-400 underline">
+          <Text className="text-xs font-outfit-medium text-gray-400 underline">
             Download sample CSV template
           </Text>
         </TouchableOpacity>

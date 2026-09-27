@@ -32,23 +32,23 @@ const TopicsScreens = ({
                 <StepProgress current={2} total={3} />
             </View>
 
-            <Text className="mb-1 text-2xl font-bold text-slate-900">Your topics</Text>
-            <Text className="mb-6 text-sm text-slate-500">
+            <Text className="mb-1 text-2xl font-outfit-bold text-slate-900">Your topics</Text>
+            <Text className="font-outfit mb-6 text-sm text-slate-500">
                 Enter topics in order of delivery or paste your course syllabus.
             </Text>
 
             <View className="mb-4 rounded-2xl bg-white p-4">
                 {topics.map((topic, i) => (
                     <View key={topic.id} className="flex-row items-center gap-3 py-2">
-                        <Text className="w-5 text-sm font-semibold text-slate-400">{i + 1}.</Text>
+                        <Text className="w-5 text-sm font-outfit-semibold text-slate-400">{i + 1}.</Text>
                         <TextInput
                             value={topic.title}
                             onChangeText={(t) => updateTitle(topic.id, t)}
-                            className="flex-1 text-sm font-medium text-slate-800"
+                            className="flex-1 text-sm font-outfit-medium text-slate-800"
                         />
                     </View>
                 ))}
-                <Text className="mt-2 text-xs font-medium text-emerald-700">
+                <Text className="mt-2 text-xs font-outfit-medium text-emerald-700">
                     {topics.length} topics detected
                 </Text>
             </View>
@@ -57,7 +57,7 @@ const TopicsScreens = ({
                 onPress={onImportOutline}
                 className="mb-6 items-center rounded-full bg-white py-4"
             >
-                <Text className="font-semibold text-slate-900">
+                <Text className="font-outfit-semibold text-slate-900">
                     📄 Import course outline instead
                 </Text>
             </TouchableOpacity>
@@ -67,7 +67,7 @@ const TopicsScreens = ({
                 disabled={topics.length === 0}
                 className="items-center rounded-full bg-slate-900 py-4"
             >
-                <Text className="font-semibold text-white">Continue →</Text>
+                <Text className="font-outfit-semibold text-white">Continue →</Text>
             </TouchableOpacity>
         </ScrollView>
     );

@@ -20,10 +20,10 @@ export default function PlanAlertBanner({
       <View className="mr-3 flex-1 flex-row items-start">
         <View className="mr-2.5 mt-1.5 h-2 w-2 rounded-full bg-orange-500" />
         <View className="flex-1">
-          <Text className="text-[14px] font-semibold text-gray-900">
+          <Text className="text-[14px] font-outfit-semibold text-gray-900">
             {title}
           </Text>
-          <Text className="mt-0.5 text-[12.5px] text-gray-600">
+          <Text className="font-outfit mt-0.5 text-[12.5px] text-gray-600">
             {subtitle}
           </Text>
         </View>
@@ -33,7 +33,7 @@ export default function PlanAlertBanner({
         onPress={onPressCta}
         className="flex-row items-center rounded-full bg-gray-900 px-4 py-2.5"
       >
-        <Text className="mr-1 text-[13px] font-semibold text-white">
+        <Text className="mr-1 text-[13px] font-outfit-semibold text-white">
           {ctaLabel}
         </Text>
         <ArrowRight size={14} color="#FFFFFF" />

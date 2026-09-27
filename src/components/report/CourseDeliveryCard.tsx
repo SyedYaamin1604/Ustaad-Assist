@@ -24,7 +24,7 @@ export function CourseDeliveryCard({
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-1.5">
           <View className="h-1.5 w-1.5 rounded-full bg-gray-700" />
-          <Text className="text-[12px] text-gray-700">
+          <Text className="font-outfit text-[12px] text-gray-700">
             {weeksLogged} of {totalWeeks} weeks logged
           </Text>
         </View>
@@ -33,7 +33,7 @@ export function CourseDeliveryCard({
           onPress={onGenerate}
           className="flex-row items-center gap-2 rounded-full bg-gray-900 px-5 py-3.5 active:opacity-80"
         >
-          <Text className="text-[14px] font-semibold text-white">
+          <Text className="text-[14px] font-outfit-semibold text-white">
             Generate PDF
           </Text>
           <ArrowRight size={16} color="#FFFFFF" />

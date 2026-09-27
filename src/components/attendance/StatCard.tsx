@@ -25,16 +25,16 @@ export function StatCard({
           {icon}
         </View>
         <View className={`rounded-full px-2.5 py-1 ${badgeBgClassName}`}>
-          <Text className="text-[10px] font-semibold text-neutral-700">
+          <Text className="text-[10px] font-outfit-semibold text-neutral-700">
             {badgeLabel}
           </Text>
         </View>
       </View>
 
-      <Text className="mt-4 text-3xl font-extrabold text-neutral-900">
+      <Text className="mt-4 text-3xl font-outfit-bold text-neutral-900">
         {value}
       </Text>
-      <Text className="mt-0.5 text-xs font-medium text-neutral-600">
+      <Text className="mt-0.5 text-xs font-outfit-medium text-neutral-600">
         {caption}
       </Text>
     </View>
