@@ -1,28 +1,17 @@
-// components/CourseSettingsHeader.tsx
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { ChevronLeft, MoreVertical } from 'lucide-react-native';
+import { Pressable, Text, View } from 'react-native';
+import { ChevronLeft } from 'lucide-react-native';
 
 interface CourseSettingsHeaderProps {
   title: string;
   subtitle: string;
   onBack?: () => void;
-  onMorePress?: () => void;
 }
 
-export default function CourseSettingsHeader({
-  title,
-  subtitle,
-  onBack,
-  onMorePress,
-}: CourseSettingsHeaderProps) {
+export default function CourseSettingsHeader({ title, subtitle, onBack }: CourseSettingsHeaderProps) {
   return (
     <View className="flex-row items-center justify-between px-5 pt-2 pb-4">
-      <Pressable
-        onPress={onBack}
-        hitSlop={10}
-        className="w-10 h-10 rounded-full bg-white items-center justify-center"
-      >
+      <Pressable onPress={onBack} hitSlop={10} className="w-10 h-10 rounded-full bg-white items-center justify-center">
         <ChevronLeft size={20} color="#111318" strokeWidth={2.5} />
       </Pressable>
 
@@ -35,13 +24,8 @@ export default function CourseSettingsHeader({
         </Text>
       </View>
 
-      <Pressable
-        onPress={onMorePress}
-        hitSlop={10}
-        className="w-10 h-10 rounded-full bg-white items-center justify-center"
-      >
-        <MoreVertical size={18} color="#111318" />
-      </Pressable>
+      {/* Balances the back button so the title stays centred. */}
+      <View className="w-10 h-10" />
     </View>
   );
 }

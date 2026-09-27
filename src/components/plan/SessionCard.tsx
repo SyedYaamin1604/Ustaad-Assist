@@ -1,17 +1,16 @@
-import { PlanSession } from "@/types/plan";
-import { parseISODate, shortMonth, shortWeekday } from "@/utils/date";
-import { partLabel, sessionTitle } from "@/utils/plan";
 import { Feather } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
 
+import { parseISODate, shortMonth, shortWeekday } from "@/utils/date";
+import { partLabel, sessionTitle, type PlanSession } from "@/utils/plan";
+
 interface SessionCardProps {
   session: PlanSession;
-  classSize: number;
   highlighted?: boolean;
   onPress: () => void;
 }
 
-export function SessionCard({ session, classSize, highlighted = false, onPress }: SessionCardProps) {
+export function SessionCard({ session, highlighted = false, onPress }: SessionCardProps) {
   const isCancelled = session.status === "cancelled";
   const isConducted = session.status === "conducted";
   const part = partLabel(session);
@@ -48,47 +47,32 @@ export function SessionCard({ session, classSize, highlighted = false, onPress }
         </View>
 
         <Text
-          className={`font-outfit-bold text-lg ${
-            isCancelled || isConducted ? "text-slate-500 line-through" : "text-black"
-          }`}
+          className={`font-outfit-bold text-lg ${isCancelled || isConducted ? "text-slate-500 line-through" : "text-black"}`}
         >
           {sessionTitle(session)}
         </Text>
-        {(isCancelled ? session.cancel_reason : session.description) && (
-          <Text className="font-outfit text-[13px] text-slate-500 mt-0.5">
-            {isCancelled ? session.cancel_reason : session.description}
-          </Text>
+        {isCancelled && session.cancel_reason && (
+          <Text className="font-outfit text-[13px] text-slate-500 mt-0.5">{session.cancel_reason}</Text>
         )}
 
         {!isCancelled && (
           <View className="flex-row items-center justify-between border-t border-slate-200/70 mt-3 pt-3">
             {isConducted ? (
               <>
-                <Text className="font-outfit text-xs text-slate-500">
-                  {session.attended != null
-                    ? `${session.attended} / ${classSize} students attended`
-                    : "Attendance not recorded"}
-                </Text>
+                <Text className="font-outfit text-xs text-slate-500">Taught · Week {session.week_no}</Text>
                 <Text className="font-outfit-medium text-xs text-slate-600">View details</Text>
               </>
             ) : (
               <>
                 <View className="flex-row flex-wrap gap-2 flex-1">
-                  {!!session.slides_count && (
-                    <Chip icon="paperclip" label={`${session.slides_count} slides attached`} className="bg-slate-100" />
-                  )}
-                  {session.assessment_title && (
+                  {session.assessment_title ? (
                     <Chip icon="flag" label={`${session.assessment_title} scheduled`} className="bg-[#F8DB77]" />
+                  ) : (
+                    <Text className="font-outfit text-xs text-slate-500">Week {session.week_no}</Text>
                   )}
                 </View>
-                <View
-                  className={`w-9 h-9 rounded-full items-center justify-center ${highlighted ? "bg-black" : "bg-slate-100"}`}
-                >
-                  <Feather
-                    name={highlighted ? "arrow-up-right" : "chevron-right"}
-                    size={16}
-                    color={highlighted ? "#fff" : "#0F172A"}
-                  />
+                <View className={`w-9 h-9 rounded-full items-center justify-center ${highlighted ? "bg-black" : "bg-slate-100"}`}>
+                  <Feather name={highlighted ? "arrow-up-right" : "chevron-right"} size={16} color={highlighted ? "#fff" : "#0F172A"} />
                 </View>
               </>
             )}

@@ -1,74 +1,81 @@
 import React from "react";
-import { ScrollView, View } from "react-native";
-import { BarChart3, AlertTriangle } from "lucide-react-native";
-import { StatCard } from "./StatCard";
-import { SectionLabel } from "./SectionLabel";
-import { WarningBanner } from "./WarningBanner";
-import { StudentSummaryRow } from "./StudentSummaryRow";
+import { ScrollView, Text, View } from "react-native";
+import { AlertTriangle, BarChart3 } from "lucide-react-native";
+
+import type { SummaryEntry } from "@/types/attendance";
+import { formatPercent } from "@/utils/format";
 import { DownloadRecordCard } from "./DownloadRecordCard";
-import { StudentSummary } from "../../types/attendance";
+import { SectionLabel } from "./SectionLabel";
+import { StatCard } from "./StatCard";
+import { StudentSummaryRow } from "./StudentSummaryRow";
+import { WarningBanner } from "./WarningBanner";
 
 interface AttendanceSummaryViewProps {
-  overallPct: number;
-  atRiskCount: number;
-  atRiskStudents: StudentSummary[];
-  satisfactoryStudents: StudentSummary[];
-  satisfactoryCount: number;
-  onDownloadRoster?: () => void;
+  threshold: number;
+  classesHeld: number;
+  classAverage: number | null;
+  atRisk: SummaryEntry[];
+  satisfactory: SummaryEntry[];
+  onOpenReport?: () => void;
 }
 
 export function AttendanceSummaryView({
-  overallPct,
-  atRiskCount,
-  atRiskStudents,
-  satisfactoryStudents,
-  satisfactoryCount,
-  onDownloadRoster,
+  threshold,
+  classesHeld,
+  classAverage,
+  atRisk,
+  satisfactory,
+  onOpenReport,
 }: AttendanceSummaryViewProps) {
   return (
-    <ScrollView
-      className="mt-5 flex-1 px-5"
-      contentContainerStyle={{ paddingBottom: 32 }}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView className="mt-5 flex-1 px-5" contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
       <View className="flex-row gap-3">
         <StatCard
           icon={<BarChart3 size={16} color="#BE185D" />}
           badgeLabel="Overall"
-          value={`${overallPct}%`}
-          caption="Cohort Average"
+          value={formatPercent(classAverage)}
+          caption={`Class average · ${classesHeld} held`}
           bgClassName="bg-rose-100"
         />
         <StatCard
           icon={<AlertTriangle size={16} color="#B45309" />}
           badgeLabel="Alert"
-          value={`${atRiskCount}`}
-          caption="At-Risk (<75%)"
+          value={`${atRisk.length}`}
+          caption={`At risk (<${threshold}%)`}
           bgClassName="bg-amber-100"
         />
       </View>
 
-      <SectionLabel
-        label="BELOW 75% ATTENDANCE THRESHOLD"
-        dotClassName="bg-amber-500"
-      />
-      <WarningBanner message="Action required / Exam eligibility warning" />
+      {classesHeld === 0 && (
+        <Text className="mt-6 font-outfit text-sm text-neutral-500">
+          No class has been conducted yet, so there is nothing to average. Percentages appear after the first roll call.
+        </Text>
+      )}
 
-      {atRiskStudents.map((student) => (
-        <StudentSummaryRow key={student.id} student={student} />
-      ))}
+      {atRisk.length > 0 && (
+        <>
+          <SectionLabel label={`BELOW ${threshold}% ATTENDANCE THRESHOLD`} dotClassName="bg-amber-500" trailing={`${atRisk.length} Students`} />
+          <WarningBanner message="Action required / Exam eligibility warning" />
+          {atRisk.map((student) => (
+            <StudentSummaryRow key={student.student_id} student={student} threshold={threshold} />
+          ))}
+        </>
+      )}
 
-      <SectionLabel
-        label="SATISFACTORY (75% AND ABOVE)"
-        dotClassName="bg-emerald-500"
-        trailing={`${satisfactoryCount} Students`}
-      />
+      {satisfactory.length > 0 && (
+        <>
+          <SectionLabel
+            label={`SATISFACTORY (${threshold}% AND ABOVE)`}
+            dotClassName="bg-emerald-500"
+            trailing={`${satisfactory.length} Students`}
+          />
+          {satisfactory.map((student) => (
+            <StudentSummaryRow key={student.student_id} student={student} threshold={threshold} />
+          ))}
+        </>
+      )}
 
-      {satisfactoryStudents.map((student) => (
-        <StudentSummaryRow key={student.id} student={student} />
-      ))}
-
-      <DownloadRecordCard onPress={onDownloadRoster} />
+      <DownloadRecordCard onPress={onOpenReport} />
     </ScrollView>
   );
 }

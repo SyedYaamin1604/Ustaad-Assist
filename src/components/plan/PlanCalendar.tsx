@@ -1,4 +1,4 @@
-import { PlanSession } from "@/types/plan";
+import type { PlanSession } from "@/utils/plan";
 import { MONTH_NAMES, daysInMonth, firstWeekdayOfMonth, parseISODate, toISODate } from "@/utils/date";
 import { Feather } from "@expo/vector-icons";
 import { useMemo, useState } from "react";
@@ -44,7 +44,15 @@ export function PlanCalendar({ sessions, holidays, selectedDate, onSelect }: Pla
     return { year: d.getFullYear(), month: d.getMonth() };
   });
 
-  const sessionByDate = useMemo(() => new Map(sessions.map((s) => [s.date, s])), [sessions]);
+  // One class per day; if a date holds a cancelled class and its replacement, show the live one.
+  const sessionByDate = useMemo(() => {
+    const map = new Map<string, PlanSession>();
+    for (const s of sessions) {
+      const existing = map.get(s.date);
+      if (!existing || existing.status === "cancelled") map.set(s.date, s);
+    }
+    return map;
+  }, [sessions]);
   const classWeekdays = useMemo(() => new Set(sessions.map((s) => parseISODate(s.date).getDay())), [sessions]);
   const cells = buildCells(visibleMonth.year, visibleMonth.month);
 

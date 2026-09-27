@@ -1,19 +1,27 @@
-import { PrimaryButton } from "@/components/ui/PrimaryButton";
-import { CourseSummary, PlanSession } from "@/types/plan";
-import { formatShortDate, parseISODate } from "@/utils/date";
-import { sessionTitle } from "@/utils/plan";
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
-import { Alert, Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+
+import type { Course } from "@/api/types";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { formatShortDate, parseISODate } from "@/utils/date";
+import { sessionTitle, type PlanSession } from "@/utils/plan";
 
 interface SessionSheetProps {
   session: PlanSession | null;
   lectureNo: number;
-  course: CourseSummary;
+  course: Course;
+  /** Open straight into the cancel form (e.g. from the home screen's Cancel button). */
+  initialMode?: "actions" | "cancel";
+  /** A request for this session is in flight. */
+  busy?: boolean;
   onClose: () => void;
-  onMarkConducted: () => void;
+  onTakeAttendance: () => void;
+  onMarkConducted: () => Promise<boolean>;
   onUndoConducted: () => void;
   onCancel: (reason: string) => void;
+  onOpenCatchUp: () => void;
+  onAttachMaterial: () => void;
 }
 
 const REASON_PRESETS = ["Public holiday", "Campus closed", "I was unavailable", "Exam duty"];
@@ -23,29 +31,28 @@ export function SessionSheet({
   session,
   lectureNo,
   course,
+  initialMode = "actions",
+  busy = false,
   onClose,
+  onTakeAttendance,
   onMarkConducted,
   onUndoConducted,
   onCancel,
+  onOpenCatchUp,
+  onAttachMaterial,
 }: SessionSheetProps) {
-  const [mode, setMode] = useState<"actions" | "cancel">("actions");
+  const [mode, setMode] = useState<"actions" | "cancel">(initialMode);
   const [reason, setReason] = useState("");
   const [showUndo, setShowUndo] = useState(false);
 
   if (!session) return null;
 
   const date = parseISODate(session.date);
-  const isScheduled = session.status === "scheduled";
-  const title = `${sessionTitle(session)}${session.part_no ? ` (Part ${session.part_no})` : ""}`;
+  const isPlanned = session.status === "planned";
+  const title = `${sessionTitle(session)}${session.part_no && (session.total_parts ?? 1) > 1 ? ` (Part ${session.part_no})` : ""}`;
 
-  const markConducted = () => {
-    onMarkConducted();
-    setShowUndo(true);
-  };
-
-  const undo = () => {
-    onUndoConducted();
-    setShowUndo(false);
+  const markConducted = async () => {
+    if (await onMarkConducted()) setShowUndo(true);
   };
 
   return (
@@ -59,7 +66,7 @@ export function SessionSheet({
             <View className="flex-row items-center bg-[#DFE6FB] rounded-full px-3 py-1.5 mb-3">
               <View className="w-1.5 h-1.5 rounded-full bg-black mr-2" />
               <Text className="font-outfit-medium text-xs tracking-wider text-black">
-                {session.kind === "regular" ? `LECTURE ${lectureNo} · ` : ""}
+                {session.kind === "regular" && lectureNo > 0 ? `LECTURE ${lectureNo} · ` : ""}
                 {formatShortDate(date).toUpperCase()}
               </Text>
             </View>
@@ -70,10 +77,10 @@ export function SessionSheet({
 
           <Text className="font-outfit-bold text-[28px] leading-8 text-black">{title}</Text>
           <Text className="font-outfit text-sm text-slate-500 mt-1 mb-5">
-            {course.name} {course.code} · {course.timeLabel}
+            {[course.name, course.code].filter(Boolean).join(" ")} · Week {session.week_no}
           </Text>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             {mode === "cancel" ? (
               <View>
                 <Text className="font-outfit-medium text-[13px] text-slate-500 mb-2">Why is this class cancelled?</Text>
@@ -86,9 +93,7 @@ export function SessionSheet({
                         reason === preset ? "bg-black border-black" : "bg-white border-slate-200"
                       }`}
                     >
-                      <Text
-                        className={`font-outfit-medium text-[13px] ${reason === preset ? "text-white" : "text-slate-600"}`}
-                      >
+                      <Text className={`font-outfit-medium text-[13px] ${reason === preset ? "text-white" : "text-slate-600"}`}>
                         {preset}
                       </Text>
                     </Pressable>
@@ -104,12 +109,13 @@ export function SessionSheet({
                 <View className="flex-row items-center mb-5">
                   <Feather name="info" size={14} color="#64748B" />
                   <Text className="font-outfit text-xs text-slate-500 ml-2 flex-1">
-                    Cancelling rebuilds the rest of the plan. You will see everything that moved.
+                    The reason is printed on the course report. Cancelling rebuilds the rest of the plan and shows you
+                    everything that moved.
                   </Text>
                 </View>
                 <PrimaryButton
-                  label="Cancel class and replan"
-                  disabled={reason.trim().length === 0}
+                  label={busy ? "Replanning..." : "Cancel class and replan"}
+                  disabled={reason.trim().length === 0 || busy}
                   onPress={() => onCancel(reason.trim())}
                 />
                 <Pressable onPress={() => setMode("actions")} className="items-center py-4">
@@ -121,41 +127,48 @@ export function SessionSheet({
                 {session.status === "cancelled" && (
                   <View className="flex-row items-center bg-rose-50 border border-rose-100 rounded-2xl px-4 py-3">
                     <Feather name="x-circle" size={16} color="#BE123C" />
-                    <Text className="font-outfit text-sm text-rose-800 ml-2 flex-1">
-                      Cancelled: {session.cancel_reason}
-                    </Text>
+                    <Text className="font-outfit text-sm text-rose-800 ml-2 flex-1">Cancelled: {session.cancel_reason}</Text>
                   </View>
                 )}
                 <ActionRow
+                  icon="users"
+                  title={session.status === "conducted" ? "Edit attendance" : "Take attendance"}
+                  subtitle="Everyone is present — tap only the absentees"
+                  disabled={session.status === "cancelled"}
+                  onPress={onTakeAttendance}
+                />
+                <ActionRow
                   icon="check-circle"
                   title={session.status === "conducted" ? "Conducted" : "Mark conducted"}
-                  subtitle="Record attendance & log topics covered"
+                  subtitle="Without taking the roll"
                   done={session.status === "conducted"}
-                  disabled={!isScheduled}
+                  disabled={!isPlanned || busy}
                   onPress={markConducted}
                 />
                 <ActionRow
                   icon="calendar"
                   title="Mark cancelled"
-                  subtitle="Notify students & flag for rescheduling"
-                  disabled={!isScheduled}
+                  subtitle="Record why, and rebuild the rest of the plan"
+                  disabled={!isPlanned || busy}
                   onPress={() => setMode("cancel")}
                 />
                 <ActionRow
                   icon="clock"
-                  title="Needs extra class"
-                  subtitle="Queue makeup session into semester calendar"
-                  onPress={() => Alert.alert("Extra class", "Makeup classes will be queued here once the planner API is connected.")}
+                  title="Needs extra classes"
+                  subtitle="See ways to catch up: drop, compress or add makeup classes"
+                  onPress={onOpenCatchUp}
                 />
                 <ActionRow
                   icon="upload"
                   title="Attach material"
-                  subtitle="Upload slides, code snippets, or notes"
-                  onPress={() => Alert.alert("Attach material", "Uploading material will be available from the Material tab.")}
+                  subtitle="Upload slides or notes for this topic"
+                  onPress={onAttachMaterial}
                 />
               </View>
             )}
           </ScrollView>
+
+          {busy && mode === "actions" && <ActivityIndicator style={{ marginTop: 16 }} color="#0F172A" />}
 
           {showUndo && session.status === "conducted" && (
             <View className="flex-row items-center justify-between bg-black rounded-full px-4 py-3.5 mt-5">
@@ -165,7 +178,13 @@ export function SessionSheet({
                 </View>
                 <Text className="font-outfit-semibold text-[15px] text-white">Marked conducted</Text>
               </View>
-              <Pressable onPress={undo} hitSlop={8}>
+              <Pressable
+                onPress={() => {
+                  onUndoConducted();
+                  setShowUndo(false);
+                }}
+                hitSlop={8}
+              >
                 <Text className="font-outfit-semibold text-[15px] text-white underline">Undo</Text>
               </Pressable>
             </View>
@@ -194,9 +213,7 @@ function ActionRow({ icon, title, subtitle, done = false, disabled = false, onPr
         disabled && !done ? "opacity-50" : ""
       }`}
     >
-      <View
-        className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${done ? "bg-[#3EB6AA]" : "bg-white"}`}
-      >
+      <View className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${done ? "bg-[#3EB6AA]" : "bg-white"}`}>
         <Feather name={icon} size={20} color="#0F172A" />
       </View>
       <View className="flex-1">

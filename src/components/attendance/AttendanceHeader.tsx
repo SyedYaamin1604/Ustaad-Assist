@@ -3,7 +3,7 @@ import { Pressable, Text, View } from "react-native";
 import { ArrowLeft } from "lucide-react-native";
 
 interface AttendanceHeaderProps {
-  /** Centered pill label, e.g. "CS-301 · Section B" */
+  /** Centered pill label, e.g. "CS-301 · Fall 2026" */
   courseLabel: string;
   onBackPress?: () => void;
   /** Right-side icon button (Share2, Calendar, etc.) */

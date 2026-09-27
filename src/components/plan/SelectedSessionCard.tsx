@@ -1,18 +1,20 @@
-import { CourseSummary, PlanSession } from "@/types/plan";
-import { formatShortDate, parseISODate, relativeDayLabel } from "@/utils/date";
-import { sessionTitle } from "@/utils/plan";
 import { Feather } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
+
+import type { Course } from "@/api/types";
+import { formatShortDate, parseISODate, relativeDayLabel } from "@/utils/date";
+import { partLabel, sessionTitle, type PlanSession } from "@/utils/plan";
 
 interface SelectedSessionCardProps {
   date: string;
   session?: PlanSession;
   lectureNo: number;
-  course: CourseSummary;
+  course: Course;
+  isHoliday: boolean;
   onOpen: () => void;
 }
 
-export function SelectedSessionCard({ date, session, lectureNo, course, onOpen }: SelectedSessionCardProps) {
+export function SelectedSessionCard({ date, session, lectureNo, course, isHoliday, onOpen }: SelectedSessionCardProps) {
   const day = parseISODate(date);
   const dayLabel = formatShortDate(day).toUpperCase();
 
@@ -20,18 +22,21 @@ export function SelectedSessionCard({ date, session, lectureNo, course, onOpen }
     return (
       <View className="bg-white rounded-[32px] p-5 items-center">
         <View className="w-12 h-12 rounded-full bg-slate-100 items-center justify-center mb-3">
-          <Feather name="coffee" size={20} color="#64748B" />
+          <Feather name={isHoliday ? "sun" : "coffee"} size={20} color="#64748B" />
         </View>
-        <Text className="font-outfit-semibold text-base text-black">No class on {formatShortDate(day)}</Text>
+        <Text className="font-outfit-semibold text-base text-black">
+          {isHoliday ? `${formatShortDate(day)} is a holiday` : `No class on ${formatShortDate(day)}`}
+        </Text>
         <Text className="font-outfit text-[13px] text-slate-500 mt-1">Tap a highlighted day to see its class.</Text>
       </View>
     );
   }
 
   const isCancelled = session.status === "cancelled";
+  const part = partLabel(session);
   const title =
     session.kind === "regular"
-      ? `Lecture ${lectureNo}: ${sessionTitle(session)}${session.part_no ? ` (Part ${session.part_no})` : ""}`
+      ? `Lecture ${lectureNo}: ${sessionTitle(session)}${session.part_no && part ? ` (Part ${session.part_no})` : ""}`
       : sessionTitle(session);
 
   return (
@@ -49,14 +54,14 @@ export function SelectedSessionCard({ date, session, lectureNo, course, onOpen }
 
       <View className="flex-row items-center mb-4">
         <View className="w-14 h-14 rounded-full bg-white items-center justify-center mr-4">
-          <Feather name="database" size={22} color="#0F172A" />
+          <Feather name="book-open" size={22} color="#0F172A" />
         </View>
         <View className="flex-1">
           <Text className={`font-outfit-bold text-lg text-black ${isCancelled ? "line-through" : ""}`}>{title}</Text>
           <View className="flex-row items-center mt-1">
-            <Feather name="clock" size={13} color="#1E293B" />
+            <Feather name="calendar" size={13} color="#1E293B" />
             <Text className="font-outfit text-[13px] text-slate-800 ml-1.5">
-              {course.timeLabel} · {course.room} · {course.code}
+              {[course.code ?? course.name, `Week ${session.week_no}`].join(" · ")}
             </Text>
           </View>
         </View>
@@ -67,18 +72,16 @@ export function SelectedSessionCard({ date, session, lectureNo, course, onOpen }
           <PanelRow icon="x-circle" text={session.cancel_reason ?? "Cancelled"} />
         ) : (
           <>
-            {session.description && (
-              <PanelRow icon={session.status === "conducted" ? "check-circle" : "circle"} text={session.description} />
-            )}
+            <PanelRow
+              icon={session.status === "conducted" ? "check-circle" : "circle"}
+              text={session.status === "conducted" ? "Taught and recorded" : part ?? "Single class"}
+            />
             {session.assessment_title && <PanelRow icon="flag" text={`${session.assessment_title} scheduled`} />}
           </>
         )}
       </View>
 
-      <Pressable
-        onPress={onOpen}
-        className="flex-row items-center justify-center bg-white rounded-full py-4 active:opacity-80"
-      >
+      <Pressable onPress={onOpen} className="flex-row items-center justify-center bg-white rounded-full py-4 active:opacity-80">
         <Text className="font-outfit-semibold text-[15px] text-black mr-2">Open session details</Text>
         <Feather name="arrow-right" size={16} color="#0F172A" />
       </Pressable>

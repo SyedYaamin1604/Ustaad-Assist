@@ -1,69 +1,68 @@
 import "../global.css";
+import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { useState } from "react";
-import { useFonts } from "expo-font";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import SplashScreen from "../components/splash/SplashScreen";
+import SplashScreen from "@/components/splash/SplashScreen";
+import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 
-const RootLayout = () => {
-  const [fontsLoaded] = useFonts({
-    'Outfit-Regular': require('../../assets/fonts/Outfit-Regular.ttf'),
-    'Outfit-Medium': require('../../assets/fonts/Outfit-Medium.ttf'),
-    'Outfit-SemiBold': require('../../assets/fonts/Outfit-SemiBold.ttf'),
-    'Outfit-Bold': require('../../assets/fonts/Outfit-Bold.ttf'),
-  });
+/**
+ * Route groups:
+ *   (auth)  sign in, register, forgot password — only while signed OUT
+ *   (app)   everything else                      — only while signed IN
+ *
+ * Signing in or out flips the guards, and Expo Router sends the teacher to
+ * index, which redirects to the right place.
+ */
+function RootNavigator() {
+  const { session, isLoading } = useAuth();
 
-  // Gates the real Stack until the animated splash has held for its
-  // guaranteed minimum duration and faded out (see SPLASH_MIN_DURATION_MS
-  // in components/splash/theme.ts).
+  // Gates the real Stack until the animated splash has held for its minimum
+  // duration and faded out (see SPLASH_MIN_DURATION_MS in types/splash-theme.ts).
   const [splashDone, setSplashDone] = useState(false);
 
-  // Fonts aren't loaded yet — keep this exactly as before so the native/
-  // static splash (from app.json) stays up rather than flashing an
-  // unstyled screen. Nothing renders here on purpose.
-  if (!fontsLoaded) {
-    return null;
-  }
-
-  // Fonts are ready, but our animated splash hasn't finished its hold +
-  // fade-out yet. Render it full-screen with nothing else mounted, so
-  // there's no route flash underneath it and no header/back-gesture to
-  // fight while it's up.
   if (!splashDone) {
     return <SplashScreen onFinish={() => setSplashDone(true)} />;
   }
 
+  // The stored session is normally read long before the splash ends.
+  if (isLoading) return null;
+
+  const signedIn = session !== null;
+
   return (
-    <SafeAreaProvider className="bg-none">
-      <Stack
-        initialRouteName="signin"
-        screenOptions={{
-          headerShown: true,
-          // Native headers aren't reachable by className, so map them to Outfit here.
-          headerTitleStyle: { fontFamily: "Outfit-SemiBold" },
-          headerBackTitleStyle: { fontFamily: "Outfit-Regular" },
-        }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="signin" options={{ title: "Sign In", headerShown: false }} />
-        <Stack.Screen name="register" options={{ title: "Register", headerShown: false }} />
-        <Stack.Screen name="forgot-password" options={{ title: "Forgot Password", headerShown: false }} />
-        <Stack.Screen name="profile" options={{ title: "Profile", headerShown: false }} />
-        <Stack.Screen name="settings" options={{ title: "Settings", headerShown: false }} />
-        <Stack.Screen name="dashboard" options={{ title: "Dashboard", headerShown: false }} />
-        <Stack.Screen name="attendance" options={{ title: "Attendance", headerShown: false }} />
-        <Stack.Screen name="report" options={{ title: "Report", headerShown: false }} />
-        <Stack.Screen name="course/[id]" options={{ title: "Course", headerShown: true }} />
-        <Stack.Screen
-          name="course/new"
-          options={{ title: "New Course", headerShown: false, presentation: "transparentModal", animation: "none" }}
-        />
-        <Stack.Screen name="course/clone" options={{ title: "Clone Course", headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+
+      <Stack.Protected guard={!signedIn}>
+        <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={signedIn}>
+        <Stack.Screen name="(app)" />
+      </Stack.Protected>
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    "Outfit-Regular": require("../../assets/fonts/Outfit-Regular.ttf"),
+    "Outfit-Medium": require("../../assets/fonts/Outfit-Medium.ttf"),
+    "Outfit-SemiBold": require("../../assets/fonts/Outfit-SemiBold.ttf"),
+    "Outfit-Bold": require("../../assets/fonts/Outfit-Bold.ttf"),
+  });
+
+  // Keep the native splash (from app.json) up until the fonts are ready, rather
+  // than flashing an unstyled screen.
+  if (!fontsLoaded) return null;
+
+  return (
+    <SafeAreaProvider>
+      <AuthProvider>
+        <RootNavigator />
+      </AuthProvider>
     </SafeAreaProvider>
   );
-};
-
-export default RootLayout;
+}

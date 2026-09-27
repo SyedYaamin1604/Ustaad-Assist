@@ -17,9 +17,19 @@ interface DateTimePickerModalProps {
   initialDate: Date;
   onClose: () => void;
   onConfirm: (date: Date) => void;
+  /** "date" hides the time controls — most backend fields are dates only. */
+  mode?: "date" | "datetime";
+  title?: string;
 }
 
-export function DateTimePickerModal({ visible, initialDate, onClose, onConfirm }: DateTimePickerModalProps) {
+export function DateTimePickerModal({
+  visible,
+  initialDate,
+  onClose,
+  onConfirm,
+  mode = "datetime",
+  title,
+}: DateTimePickerModalProps) {
   const [viewYear, setViewYear] = useState(initialDate.getFullYear());
   const [viewMonth, setViewMonth] = useState(initialDate.getMonth());
   const [selectedDay, setSelectedDay] = useState(initialDate);
@@ -70,7 +80,8 @@ export function DateTimePickerModal({ visible, initialDate, onClose, onConfirm }
 
   const handleConfirm = () => {
     const hours24 = to24Hour(hour12, meridiem);
-    const result = new Date(viewYear, viewMonth, selectedDay.getDate(), hours24, minute);
+    // Use the selected day's own month — the teacher may have browsed to another month since.
+    const result = new Date(selectedDay.getFullYear(), selectedDay.getMonth(), selectedDay.getDate(), hours24, minute);
     onConfirm(result);
     onClose();
   };
@@ -82,7 +93,9 @@ export function DateTimePickerModal({ visible, initialDate, onClose, onConfirm }
 
         <View className="bg-[var(--color-primary)] rounded-t-[28px] px-5 pt-5 pb-8">
           <View className="flex-row items-center justify-between mb-5">
-            <Text className="font-outfit-bold text-lg text-[var(--primary-font)]">Select Date & Time</Text>
+            <Text className="font-outfit-bold text-lg text-[var(--primary-font)]">
+              {title ?? (mode === "date" ? "Select Date" : "Select Date & Time")}
+            </Text>
             <Pressable onPress={onClose} className="w-9 h-9 rounded-full bg-[var(--primary-font)]/5 items-center justify-center">
               <Feather name="x" size={18} color="#0F172A" />
             </Pressable>
@@ -139,25 +152,29 @@ export function DateTimePickerModal({ visible, initialDate, onClose, onConfirm }
             })}
           </View>
 
-          {/* Time controls */}
-          <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 mt-5 mb-2">Time</Text>
-          <View className="flex-row items-center justify-between bg-[var(--primary-font)]/5 rounded-2xl px-4 py-3.5">
-            <View className="flex-row items-center gap-3">
-              <Stepper label={hour12.toString().padStart(2, "0")} onDecrease={() => stepHour(-1)} onIncrease={() => stepHour(1)} />
-              <Text className="font-outfit-bold text-lg text-[var(--primary-font)]">:</Text>
-              <Stepper label={minute.toString().padStart(2, "0")} onDecrease={() => stepMinute(-5)} onIncrease={() => stepMinute(5)} />
-            </View>
+          {mode === "datetime" && (
+            <>
+              {/* Time controls */}
+              <Text className="font-outfit-medium text-[13px] text-[var(--primary-font)]/55 mt-5 mb-2">Time</Text>
+              <View className="flex-row items-center justify-between bg-[var(--primary-font)]/5 rounded-2xl px-4 py-3.5">
+                <View className="flex-row items-center gap-3">
+                  <Stepper label={hour12.toString().padStart(2, "0")} onDecrease={() => stepHour(-1)} onIncrease={() => stepHour(1)} />
+                  <Text className="font-outfit-bold text-lg text-[var(--primary-font)]">:</Text>
+                  <Stepper label={minute.toString().padStart(2, "0")} onDecrease={() => stepMinute(-5)} onIncrease={() => stepMinute(5)} />
+                </View>
 
-            <Pressable
-              onPress={() => setMeridiem((m) => (m === "AM" ? "PM" : "AM"))}
-              className="bg-[var(--color-secondary)] rounded-full px-4 py-2"
-            >
-              <Text className="font-outfit-semibold text-xs text-[var(--secondary-font)]">{meridiem}</Text>
-            </Pressable>
-          </View>
+                <Pressable
+                  onPress={() => setMeridiem((m) => (m === "AM" ? "PM" : "AM"))}
+                  className="bg-[var(--color-secondary)] rounded-full px-4 py-2"
+                >
+                  <Text className="font-outfit-semibold text-xs text-[var(--secondary-font)]">{meridiem}</Text>
+                </Pressable>
+              </View>
+            </>
+          )}
 
           <View className="mt-6">
-            <PrimaryButton label="Set date & time" icon="check" onPress={handleConfirm} />
+            <PrimaryButton label={mode === "date" ? "Set date" : "Set date & time"} icon="check" onPress={handleConfirm} />
           </View>
         </View>
       </View>

@@ -7,6 +7,7 @@ interface AISuggestionBannerProps {
   onAccept?: () => void;
 }
 
+/** A one-line suggestion with a single action, e.g. moving a quiz after its topics are taught. */
 export function AISuggestionBanner({ message, actionLabel = "Accept", onAccept }: AISuggestionBannerProps) {
   return (
     <View className="flex-row items-center bg-[var(--color-emerald)] rounded-full pl-2 pr-2 py-2">

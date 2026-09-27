@@ -1,81 +1,65 @@
-import { GradingCriteriaCard } from "@/components/assessment/GradingCriteriaCard";
-import { StudentGradeRow } from "@/components/assessment/StudentGradeRow";
-import { PrimaryButton } from "@/components/ui/PrimaryButton";
-import { SearchInput } from "@/components/ui/SearchInput";
-import { SegmentedPills } from "@/components/ui/SegmentedPills";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { GradeRow, MOCK_GRADE_ROWS, MOCK_WEIGHTAGE } from "@/types/assessment";
-import { useTabBarInset } from "@/utils/tab-bar";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { ArrowLeft } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, Share, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
+
+import type { ResultSet, StudentResult } from "@/api/types";
+import { GradingCriteriaCard } from "@/components/assessment/GradingCriteriaCard";
+import { StudentGradeRow } from "@/components/assessment/StudentGradeRow";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { EmptyState } from "@/components/ui/ScreenState";
+import { SearchInput } from "@/components/ui/SearchInput";
+import { SegmentedPills } from "@/components/ui/SegmentedPills";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { formatPercent } from "@/utils/format";
+import { useTabBarInset } from "@/utils/tab-bar";
 
 interface ResultsGradesScreenProps {
+  courseLabel: string;
+  results: ResultSet;
+  refreshing: boolean;
+  onRefresh: () => void;
   onBack: () => void;
-  onExport?: () => void;
+  onEditGrading: () => void;
+  onOpenReport: () => void;
 }
 
-const SORT_OPTIONS = ["Rank (High-Low)", "Roll No", "Grade (A-F)"];
-const GRADE_ORDER: Record<string, number> = { A: 0, "B+": 1, B: 2, "C+": 3, C: 4, D: 5, F: 6 };
+const SORT_OPTIONS = ["Rank (High-Low)", "Roll No", "Grade"];
 
-function rollNumber(rollLabel: string): number {
-  const match = rollLabel.match(/(\d+)\s*·/);
-  return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
-}
-
-function sortRows(rows: GradeRow[], sort: string): GradeRow[] {
-  const withMarks = rows.filter((r) => r.marksEntered);
-  const withoutMarks = rows.filter((r) => !r.marksEntered);
-
-  const sorted = [...withMarks].sort((a, b) => {
-    if (sort === "Roll No") return rollNumber(a.rollLabel) - rollNumber(b.rollLabel);
-    if (sort === "Grade (A-F)") return (GRADE_ORDER[a.grade] ?? 99) - (GRADE_ORDER[b.grade] ?? 99);
-    return b.percent - a.percent; // Rank (High-Low)
+function sortRows(rows: StudentResult[], sort: string, gradeOrder: Map<string, number>): StudentResult[] {
+  return [...rows].sort((a, b) => {
+    if (sort === "Roll No") return a.roll_no.localeCompare(b.roll_no, undefined, { numeric: true });
+    if (sort === "Grade") return (gradeOrder.get(a.grade) ?? 99) - (gradeOrder.get(b.grade) ?? 99);
+    return b.weighted_total - a.weighted_total;
   });
-
-  // Students with missing marks always sort to the bottom, regardless of sort mode
-  return [...sorted, ...withoutMarks];
 }
 
-export function ResultsGradesScreen({ onBack, onExport }: ResultsGradesScreenProps) {
+export function ResultsGradesScreen({
+  courseLabel,
+  results,
+  refreshing,
+  onRefresh,
+  onBack,
+  onEditGrading,
+  onOpenReport,
+}: ResultsGradesScreenProps) {
   const tabBarInset = useTabBarInset();
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState(SORT_OPTIONS[0]);
 
-  const missingCount = MOCK_GRADE_ROWS.filter((row) => !row.marksEntered).length;
-  const isIncomplete = missingCount > 0;
+  const { summary } = results;
+  // The course's own scale, highest band first — never a hard-coded A–F.
+  const gradeOrder = useMemo(() => new Map(results.grade_scale.map((b, i) => [b.grade, i])), [results.grade_scale]);
+  const gradeFor = (pct: number | null) =>
+    pct === null ? "" : ` (${results.grade_scale.find((b) => pct >= b.min_percentage)?.grade ?? "—"})`;
 
   const rows = useMemo(() => {
-    const filtered = MOCK_GRADE_ROWS.filter(
-      (row) =>
-        row.name.toLowerCase().includes(search.toLowerCase()) ||
-        row.rollLabel.toLowerCase().includes(search.toLowerCase())
-    );
-    return sortRows(filtered, sort);
-  }, [search, sort]);
+    const q = search.trim().toLowerCase();
+    const filtered = results.students.filter((r) => r.name.toLowerCase().includes(q) || r.roll_no.toLowerCase().includes(q));
+    return sortRows(filtered, sort, gradeOrder);
+  }, [search, sort, results.students, gradeOrder]);
 
-  const handleShare = async () => {
-    const summary = MOCK_GRADE_ROWS.map(
-      (r) => `${r.name}: ${r.marksEntered ? `${r.percent.toFixed(1)}% (${r.grade})` : "marks pending"}`
-    ).join("\n");
-    try {
-      await Share.share({
-        message: `Results & Grades — Database Systems CS-301\n\n${summary}`,
-      });
-    } catch {
-      Alert.alert("Couldn't share", "Something went wrong opening the share sheet.");
-    }
-  };
-
-  const handleMore = () => {
-    Alert.alert("More options", "Duplicate, delete and LMS export will be wired up once the backend is ready.");
-  };
-
-  const handleExport = () => {
-    Alert.alert("Export started", "Generating the PDF grade sheet — this will hand off to the backend next.");
-    onExport?.();
-  };
+  const missing = summary.students_with_missing_marks;
 
   return (
     <View className="flex-1 bg-[var(--color-accent)]">
@@ -83,87 +67,82 @@ export function ResultsGradesScreen({ onBack, onExport }: ResultsGradesScreenPro
         contentContainerClassName="px-5 pt-2"
         contentContainerStyle={{ paddingBottom: tabBarInset + 24 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         <View className="flex-row items-center justify-between mb-4">
-          <TouchableOpacity
-            onPress={onBack}
-            className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
-          >
+          <TouchableOpacity onPress={onBack} className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
             <ArrowLeft size={18} color="#111827" />
           </TouchableOpacity>
-          <View className="flex-row gap-2">
-            <Pressable onPress={handleShare} className="w-9 h-9 rounded-full bg-[var(--color-primary)] items-center justify-center">
-              <Feather name="share" size={16} color="#0F172A" />
-            </Pressable>
-            <Pressable onPress={handleMore} className="w-9 h-9 rounded-full bg-[var(--color-primary)] items-center justify-center">
-              <Feather name="more-horizontal" size={18} color="#0F172A" />
-            </Pressable>
-          </View>
+          <Pressable onPress={onOpenReport} className="w-9 h-9 rounded-full bg-[var(--color-primary)] items-center justify-center">
+            <Feather name="share" size={16} color="#0F172A" />
+          </Pressable>
         </View>
 
-        <View className="flex-row items-center gap-2 mb-1">
+        <View className="flex-row items-center flex-wrap gap-2 mb-1">
           <Text className="font-outfit-bold text-[26px] text-[var(--primary-font)]">Results & Grades</Text>
-          {isIncomplete && <StatusBadge label="Incomplete" tone="warning" dot />}
+          {missing > 0 && <StatusBadge label="Provisional" tone="warning" dot />}
         </View>
-        <Text className="font-outfit text-sm text-[var(--primary-font)]/55 mb-4">Database Systems CS-301 · Mid-term Standing</Text>
+        <Text className="font-outfit text-sm text-[var(--primary-font)]/55 mb-4">{courseLabel}</Text>
 
-        {isIncomplete && (
+        {missing > 0 && (
           <View className="flex-row items-center bg-amber-50 border border-amber-200 rounded-2xl px-3.5 py-3 mb-4">
             <Feather name="alert-triangle" size={16} color="#B45309" />
             <Text className="flex-1 font-outfit-medium text-[13px] text-amber-700 ml-2">
-              {missingCount} of {MOCK_GRADE_ROWS.length} students still need marks entered. This sheet won&apos;t be
-              final until every student is in.
+              {missing} of {summary.student_count} students still have marks missing. Their totals leave those marks out
+              (they are not counted as zero) until they are entered.
             </Text>
           </View>
         )}
 
-        <GradingCriteriaCard totalLabel="Total Weightage: 100%" items={MOCK_WEIGHTAGE} />
+        <GradingCriteriaCard weightage={results.weightage} onPress={onEditGrading} />
 
-        <View className="mt-4 mb-3">
-          <SearchInput value={search} onChangeText={setSearch} placeholder="Search student or roll no..." />
-        </View>
-
-        <View className="mb-4">
-          <SegmentedPills options={SORT_OPTIONS} value={sort} onChange={setSort} />
-        </View>
-
-        <View className="flex-row gap-3 mb-5">
-          <View className="flex-1 bg-[var(--color-primary)] rounded-2xl border border-[var(--primary-font)]/10 p-3.5">
-            <View className="flex-row items-center mb-1">
-              <Ionicons name="stats-chart-outline" size={14} color="#64748B" />
-              <Text className="font-outfit-medium text-xs text-[var(--primary-font)]/55 ml-1.5">Class Average</Text>
-            </View>
-            <Text className="font-outfit-bold text-lg text-[var(--primary-font)]">76.4% (B)</Text>
-          </View>
-          <View className="flex-1 bg-[var(--color-primary)] rounded-2xl border border-[var(--primary-font)]/10 p-3.5">
-            <View className="flex-row items-center mb-1">
-              <Ionicons name="trophy-outline" size={14} color="#64748B" />
-              <Text className="font-outfit-medium text-xs text-[var(--primary-font)]/55 ml-1.5">Highest</Text>
-            </View>
-            <Text className="font-outfit-bold text-lg text-[var(--primary-font)]">94.0% (A)</Text>
-          </View>
-        </View>
-
-        <Text className="font-outfit-semibold text-[15px] text-[var(--primary-font)] mb-3">
-          Enrolled Students ({rows.length})
-        </Text>
-
-        {rows.length === 0 ? (
-          <View className="items-center py-10">
-            <Text className="font-outfit-medium text-[var(--primary-font)]/40">No students match your search</Text>
-          </View>
+        {results.students.length === 0 ? (
+          <EmptyState icon="users" title="No students yet" message="Results appear once the class list is added and marks are entered." />
         ) : (
-          rows.map((row) => <StudentGradeRow key={row.id} row={row} />)
-        )}
+          <>
+            <View className="mt-4 mb-3">
+              <SearchInput value={search} onChangeText={setSearch} placeholder="Search student or roll no..." />
+            </View>
 
-        <View className="mt-3">
-          <PrimaryButton
-            label={isIncomplete ? `Export blocked — ${missingCount} student missing marks` : "Export grade sheet (PDF)"}
-            onPress={handleExport}
-            disabled={isIncomplete}
-          />
-        </View>
+            <View className="mb-4">
+              <SegmentedPills options={SORT_OPTIONS} value={sort} onChange={setSort} />
+            </View>
+
+            <View className="flex-row gap-3 mb-5">
+              <SummaryTile icon="stats-chart-outline" label="Class Average" value={`${formatPercent(summary.class_average)}${gradeFor(summary.class_average)}`} />
+              <SummaryTile icon="trophy-outline" label="Highest" value={`${formatPercent(summary.highest)}${gradeFor(summary.highest)}`} />
+            </View>
+
+            <Text className="font-outfit-semibold text-[15px] text-[var(--primary-font)] mb-3">
+              Enrolled Students ({rows.length}) · {summary.pass_count} passing
+            </Text>
+
+            {rows.length === 0 ? (
+              <View className="items-center py-10">
+                <Text className="font-outfit-medium text-[var(--primary-font)]/40">No students match your search</Text>
+              </View>
+            ) : (
+              rows.map((row) => <StudentGradeRow key={row.student_id} row={row} bandIndex={gradeOrder.get(row.grade) ?? 99} />)
+            )}
+
+            <View className="mt-3">
+              <PrimaryButton label="Result sheet (PDF)" icon="file-text" onPress={onOpenReport} />
+            </View>
+          </>
+        )}
       </ScrollView>
+    </View>
+  );
+}
+
+function SummaryTile({ icon, label, value }: { icon: keyof typeof Ionicons.glyphMap; label: string; value: string }) {
+  return (
+    <View className="flex-1 bg-[var(--color-primary)] rounded-2xl border border-[var(--primary-font)]/10 p-3.5">
+      <View className="flex-row items-center mb-1">
+        <Ionicons name={icon} size={14} color="#64748B" />
+        <Text className="font-outfit-medium text-xs text-[var(--primary-font)]/55 ml-1.5">{label}</Text>
+      </View>
+      <Text className="font-outfit-bold text-lg text-[var(--primary-font)]">{value}</Text>
     </View>
   );
 }

@@ -1,12 +1,11 @@
-// components/HolidayRow.tsx
 import React from 'react';
-import { View, Text } from 'react-native';
-import { LucideIcon } from 'lucide-react-native';
+import { Text, View } from 'react-native';
+import { CalendarOff } from 'lucide-react-native';
+
 import Toggle from './Toggle';
 
 export interface HolidayItem {
   id: string;
-  icon: LucideIcon;
   title: string;
   subtitle: string;
   enabled: boolean;
@@ -19,12 +18,11 @@ interface HolidayRowProps {
 }
 
 export default function HolidayRow({ item, onToggle, showDivider = true }: HolidayRowProps) {
-  const Icon = item.icon;
   return (
     <View>
       <View className="flex-row items-center py-3.5">
         <View className="w-9 h-9 rounded-full bg-[#F4F5FA] items-center justify-center mr-3">
-          <Icon size={15} color="#111318" />
+          <CalendarOff size={15} color="#111318" />
         </View>
         <View className="flex-1">
           <Text className="text-[13.5px] font-outfit-bold text-[#0F1424]">{item.title}</Text>

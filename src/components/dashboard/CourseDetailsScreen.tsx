@@ -1,32 +1,32 @@
 import React from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Switch } from "react-native";
-import StepProgress from "./StepProgress";
+import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+
+import { DateField } from "@/components/ui/DateField";
+import type { CourseDetailsForm } from "@/types/create-course";
 import DayPicker from "./DayPicker";
-import { CourseDetails } from "../../types/create-course";
+import StepProgress from "./StepProgress";
 
-const SEMESTER_OPTIONS = ["Fall 2026", "Spring 2027", "Summer 2027", "Winter 2027"];
-
-interface CourseDetailsScreenProps {
-  value: CourseDetails;
-  onChange: (next: CourseDetails) => void;
-  onBack: () => void;
-  onContinue: () => void;
+/** Suggestions only — the backend stores any text. */
+function semesterOptions(): string[] {
+  const year = new Date().getFullYear();
+  return [`Fall ${year}`, `Spring ${year + 1}`, `Summer ${year + 1}`, `Fall ${year + 1}`];
 }
 
-const CourseDetailsScreen = ({
-  value,
-  onChange,
-  onBack,
-  onContinue,
-}: CourseDetailsScreenProps) => {
+interface CourseDetailsScreenProps {
+  value: CourseDetailsForm;
+  onChange: (next: CourseDetailsForm) => void;
+  onBack: () => void;
+  onContinue: () => void;
+  busy?: boolean;
+}
+
+const CourseDetailsScreen = ({ value, onChange, onBack, onContinue, busy = false }: CourseDetailsScreenProps) => {
+  const canContinue = value.name.trim() !== "" && value.classDays.length > 0 && !busy;
+
   return (
-    <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ padding: 24 }}>
-      {/* Header Navigation */}
+    <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ padding: 24 }} keyboardShouldPersistTaps="handled">
       <View className="mb-6 flex-row items-center justify-between">
-        <TouchableOpacity
-          onPress={onBack}
-          className="h-12 w-12 items-center justify-center rounded-full bg-slate-200 shadow-sm"
-        >
+        <TouchableOpacity onPress={onBack} className="h-12 w-12 items-center justify-center rounded-full bg-slate-200 shadow-sm">
           <Text className="text-2xl font-outfit text-[var(--color-secondary)]">←</Text>
         </TouchableOpacity>
         <StepProgress current={1} total={3} />
@@ -34,103 +34,78 @@ const CourseDetailsScreen = ({
 
       <Text className="mb-1 text-2xl font-outfit-bold text-slate-900">Course details</Text>
       <Text className="font-outfit mb-6 text-sm text-slate-500">
-        Configure schedule and lecture parameters for this cohort.
+        Just the basics. Everything else is asked for later, when it is needed.
       </Text>
 
-      {/* Course Name Input */}
       <View className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
         <Text className="font-outfit mb-1 text-xs uppercase text-slate-400">Course name</Text>
         <TextInput
-          value={value.courseName}
-          onChangeText={(t) => onChange({ ...value, courseName: t })}
-          placeholder="e.g. Intro to Computer Science"
+          value={value.name}
+          onChangeText={(name) => onChange({ ...value, name })}
+          placeholder="e.g. Database Systems"
           placeholderTextColor="#94a3b8"
           className="text-lg font-outfit-semibold text-slate-900"
         />
       </View>
 
-      {/* Semester Term Option Chips */}
       <View className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-        <Text className="font-outfit mb-3 text-xs uppercase text-slate-400">Semester term</Text>
+        <Text className="font-outfit mb-1 text-xs uppercase text-slate-400">Course code (optional)</Text>
+        <TextInput
+          value={value.code}
+          onChangeText={(code) => onChange({ ...value, code })}
+          placeholder="e.g. CS-301"
+          placeholderTextColor="#94a3b8"
+          autoCapitalize="characters"
+          className="text-lg font-outfit-semibold text-slate-900"
+        />
+      </View>
+
+      <View className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+        <Text className="font-outfit mb-3 text-xs uppercase text-slate-400">Semester term (optional)</Text>
         <View className="flex-row flex-wrap gap-2">
-          {SEMESTER_OPTIONS.map((term) => {
-            const isSelected = value.semesterTerm === term;
+          {semesterOptions().map((term) => {
+            const isSelected = value.semester === term;
             return (
               <TouchableOpacity
                 key={term}
-                onPress={() => onChange({ ...value, semesterTerm: term })}
+                onPress={() => onChange({ ...value, semester: isSelected ? "" : term })}
                 className={`rounded-xl px-4 py-2.5 border ${
-                  isSelected
-                    ? "bg-slate-900 border-slate-900"
-                    : "bg-slate-50 border-slate-200"
+                  isSelected ? "bg-slate-900 border-slate-900" : "bg-slate-50 border-slate-200"
                 }`}
               >
-                <Text
-                  className={`text-sm font-outfit-semibold ${
-                    isSelected ? "text-white" : "text-slate-700"
-                  }`}
-                >
-                  {term}
-                </Text>
+                <Text className={`text-sm font-outfit-semibold ${isSelected ? "text-white" : "text-slate-700"}`}>{term}</Text>
               </TouchableOpacity>
             );
           })}
         </View>
       </View>
 
-      {/* Date Pickers */}
       <View className="mb-4 flex-row gap-3">
-        <View className="flex-1 rounded-2xl bg-white p-4 shadow-sm">
-          <Text className="font-outfit mb-1 text-xs uppercase text-slate-400">Start date</Text>
-          <TextInput
-            value={value.startDate}
-            onChangeText={(t) => onChange({ ...value, startDate: t })}
-            placeholder="YYYY-MM-DD"
-            placeholderTextColor="#94a3b8"
-            className="text-base font-outfit-semibold text-slate-900"
-          />
-        </View>
-        <View className="flex-1 rounded-2xl bg-white p-4 shadow-sm">
-          <Text className="font-outfit mb-1 text-xs uppercase text-slate-400">End date</Text>
-          <TextInput
-            value={value.endDate}
-            onChangeText={(t) => onChange({ ...value, endDate: t })}
-            placeholder="YYYY-MM-DD"
-            placeholderTextColor="#94a3b8"
-            className="text-base font-outfit-semibold text-slate-900"
-          />
-        </View>
+        <DateField
+          className="flex-1"
+          label="Start date"
+          value={value.startDate}
+          onChange={(startDate) => onChange({ ...value, startDate })}
+        />
+        <DateField
+          className="flex-1"
+          label="End date"
+          value={value.endDate}
+          onChange={(endDate) => onChange({ ...value, endDate })}
+        />
       </View>
 
-      {/* Day Picker */}
-      <View className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+      <View className="mb-6 rounded-2xl bg-white p-4 shadow-sm">
         <Text className="font-outfit mb-3 text-xs uppercase text-slate-400">Class days</Text>
-        <DayPicker
-          days={value.classDays}
-          setDays={(classDays) => onChange({ ...value, classDays })}
-        />
+        <DayPicker days={value.classDays} setDays={(classDays) => onChange({ ...value, classDays })} />
       </View>
 
-      {/* AI Copilot Toggle */}
-      <TouchableOpacity
-        onPress={() => onChange({ ...value, aiCopilotEnabled: !value.aiCopilotEnabled })}
-        activeOpacity={0.8}
-        className="mb-6 flex-row items-center gap-3 rounded-2xl bg-emerald-100 p-4"
-      >
-        <Text className="flex-1 font-outfit-semibold text-slate-900">Ustaad AI Copilot</Text>
-        <Switch
-          value={value.aiCopilotEnabled}
-          onValueChange={(v) => onChange({ ...value, aiCopilotEnabled: v })}
-        />
-      </TouchableOpacity>
-
-      {/* Continue CTA */}
       <TouchableOpacity
         onPress={onContinue}
-        disabled={!value.courseName || !value.semesterTerm || value.classDays.length === 0}
-        className="items-center rounded-full bg-slate-900 py-4 disabled:opacity-50"
+        disabled={!canContinue}
+        className={`items-center rounded-full bg-slate-900 py-4 ${canContinue ? "" : "opacity-50"}`}
       >
-        <Text className="font-outfit-semibold text-white">Continue →</Text>
+        {busy ? <ActivityIndicator color="#fff" /> : <Text className="font-outfit-semibold text-white">Continue →</Text>}
       </TouchableOpacity>
     </ScrollView>
   );

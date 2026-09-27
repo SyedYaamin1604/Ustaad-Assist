@@ -1,54 +1,45 @@
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { GraduationCap, Pencil, Calendar } from 'lucide-react-native';
+import { Pressable, Text, View } from 'react-native';
+import { Calendar, GraduationCap, Pencil } from 'lucide-react-native';
 
 interface CourseOverviewCardProps {
-  cohortLabel: string;
-  courseCode: string;
-  courseName: string;
-  department: string;
-  section: string;
+  semesterLabel: string;
+  courseTitle: string;
+  subtitle: string;
   dateRangeLabel: string;
   durationLabel: string;
   onEditPress?: () => void;
 }
 
 export default function CourseOverviewCard({
-  cohortLabel,
-  courseCode,
-  courseName,
-  department,
-  section,
+  semesterLabel,
+  courseTitle,
+  subtitle,
   dateRangeLabel,
   durationLabel,
   onEditPress,
 }: CourseOverviewCardProps) {
   return (
     <View className="bg-white rounded-3xl px-5 py-5 mx-5">
-      {/* Row 1: cohort badge + edit action */}
       <View className="flex-row items-center justify-between mb-4">
         <View className="flex-row items-center bg-[#F4F5FA] rounded-full pl-2.5 pr-3.5 py-1.5">
           <View className="w-6 h-6 rounded-full bg-[#111318] items-center justify-center mr-2">
             <GraduationCap size={13} color="#FFFFFF" />
           </View>
-          <Text className="text-[12px] font-outfit-semibold text-[#111318]">{cohortLabel}</Text>
+          <Text className="text-[12px] font-outfit-semibold text-[#111318]">{semesterLabel}</Text>
         </View>
 
-        <Pressable onPress={onEditPress} className="flex-row items-center" hitSlop={8}>
-          <Text className="text-[13px] font-outfit-semibold text-[#111318] mr-1">Edit course info</Text>
-          <Pencil size={13} color="#111318" />
-        </Pressable>
+        {onEditPress && (
+          <Pressable onPress={onEditPress} className="flex-row items-center" hitSlop={8}>
+            <Text className="text-[13px] font-outfit-semibold text-[#111318] mr-1">Edit course info</Text>
+            <Pencil size={13} color="#111318" />
+          </Pressable>
+        )}
       </View>
 
-      {/* Row 2: course name + code, department/section */}
-      <Text className="text-[20px] font-outfit-bold text-[#0F1424] mb-1">
-        {courseName} {courseCode}
-      </Text>
-      <Text className="font-outfit text-[13px] text-[#8A8F9C] mb-4">
-        {department} · Section {section}
-      </Text>
+      <Text className="text-[20px] font-outfit-bold text-[#0F1424] mb-1">{courseTitle}</Text>
+      <Text className="font-outfit text-[13px] text-[#8A8F9C] mb-4">{subtitle}</Text>
 
-      {/* Row 3: date range chip */}
       <View className="flex-row items-center bg-[#F4F5FA] rounded-2xl px-4 py-3">
         <View className="w-9 h-9 rounded-full bg-white items-center justify-center mr-3">
           <Calendar size={16} color="#111318" />

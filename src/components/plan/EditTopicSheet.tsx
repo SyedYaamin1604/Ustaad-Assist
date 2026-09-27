@@ -1,26 +1,31 @@
-import { PrimaryButton } from "@/components/ui/PrimaryButton";
-import { PlanTopic, TopicPriority } from "@/types/plan";
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
 
+import type { Priority, Topic } from "@/api/types";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+
+/** The three fields PATCH /topics/:id lets the teacher correct after seeing the plan. */
+export type TopicEdit = Pick<Topic, "sessions_needed" | "min_sessions" | "priority">;
+
 interface EditTopicSheetProps {
-  topic: PlanTopic | null;
+  topic: Topic | null;
+  busy?: boolean;
   onClose: () => void;
-  onSave: (topic: PlanTopic) => void;
+  onSave: (edit: TopicEdit) => void;
 }
 
-const PRIORITIES: TopicPriority[] = ["low", "normal", "high"];
+const PRIORITIES: Priority[] = ["low", "normal", "high"];
 
 // Parent should pass key={topic.id} so the sheet resets for each topic.
-export function EditTopicSheet({ topic, onClose, onSave }: EditTopicSheetProps) {
+export function EditTopicSheet({ topic, busy = false, onClose, onSave }: EditTopicSheetProps) {
   const [needed, setNeeded] = useState(topic?.sessions_needed ?? 1);
   const [min, setMin] = useState(topic?.min_sessions ?? 1);
-  const [priority, setPriority] = useState<TopicPriority>(topic?.priority ?? "normal");
+  const [priority, setPriority] = useState<Priority>(topic?.priority ?? "normal");
 
   if (!topic) return null;
 
-  // min_sessions can never be more than sessions_needed
+  // min_sessions can never be more than sessions_needed (the database refuses it).
   const changeNeeded = (value: number) => {
     const next = Math.max(1, value);
     setNeeded(next);
@@ -73,11 +78,7 @@ export function EditTopicSheet({ topic, onClose, onSave }: EditTopicSheetProps) 
                       priority === p ? "bg-black border-black" : "bg-white border-slate-300"
                     }`}
                   >
-                    <Text
-                      className={`font-outfit-semibold text-[15px] capitalize ${
-                        priority === p ? "text-white" : "text-slate-600"
-                      }`}
-                    >
+                    <Text className={`font-outfit-semibold text-[15px] capitalize ${priority === p ? "text-white" : "text-slate-600"}`}>
                       {p}
                     </Text>
                   </Pressable>
@@ -89,14 +90,15 @@ export function EditTopicSheet({ topic, onClose, onSave }: EditTopicSheetProps) 
           <View className="flex-row items-center my-5">
             <Feather name="info" size={14} color="#64748B" />
             <Text className="font-outfit text-[13px] text-slate-500 ml-2">
-              Changing this will adjust the plan and semester timeline.
+              Changing the classes needed will adjust the plan and semester timeline.
             </Text>
           </View>
 
           <PrimaryButton
-            label="Save"
+            label={busy ? "Saving..." : "Save"}
             icon="check"
-            onPress={() => onSave({ ...topic, sessions_needed: needed, min_sessions: min, priority })}
+            disabled={busy}
+            onPress={() => onSave({ sessions_needed: needed, min_sessions: min, priority })}
           />
         </View>
       </View>
